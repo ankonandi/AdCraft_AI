@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, Copy, Save } from "lucide-react";
+import { Sparkles, Copy, Save, Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -32,6 +32,7 @@ export default function GenerateCampaign() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
   const [selectedGoal, setSelectedGoal] = useState("engagement");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev =>
@@ -75,9 +76,10 @@ export default function GenerateCampaign() {
       if (error) throw error;
 
       setGeneratedContent(data.content);
+      setGeneratedImages(data.images || []);
       toast({
         title: "Campaign created! 🎉",
-        description: "Your marketing content is ready",
+        description: `Your marketing content ${data.images?.length ? 'and images are' : 'is'} ready`,
       });
 
     } catch (error: any) {
@@ -189,6 +191,40 @@ export default function GenerateCampaign() {
                   <CardDescription>Copy and use this content for your marketing</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Generated Images */}
+                  {generatedImages.length > 0 && (
+                    <div>
+                      <Label className="text-base font-semibold mb-3 block">Campaign Creatives</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {generatedImages.map((imageUrl, index) => (
+                          <div key={index} className="relative group">
+                            <img 
+                              src={imageUrl} 
+                              alt={`Campaign creative ${index + 1}`}
+                              className="w-full rounded-lg shadow-card hover:shadow-soft transition-all"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = imageUrl;
+                                  link.download = `campaign-image-${index + 1}.png`;
+                                  link.click();
+                                  toast({
+                                    title: "Download started",
+                                    description: "Your image is being downloaded",
+                                  });
+                                }}
+                              >
+                                Download Image
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <Label className="text-base font-semibold">Campaign Caption</Label>
