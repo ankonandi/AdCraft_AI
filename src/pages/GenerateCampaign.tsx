@@ -1,0 +1,265 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Navigation } from "@/components/Navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Sparkles, Copy, Save } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const PLATFORMS = [
+  { id: "instagram", label: "Instagram" },
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "facebook", label: "Facebook" },
+];
+
+const GOALS = [
+  { id: "awareness", label: "Awareness" },
+  { id: "engagement", label: "Engagement" },
+  { id: "orders", label: "WhatsApp Orders" },
+  { id: "sale", label: "Sale / Promo" },
+];
+
+export default function GenerateCampaign() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [productInfo, setProductInfo] = useState("");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
+  const [selectedGoal, setSelectedGoal] = useState("engagement");
+  const [generatedContent, setGeneratedContent] = useState<any>(null);
+
+  const handlePlatformToggle = (platformId: string) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(platformId)
+        ? prev.filter(p => p !== platformId)
+        : [...prev, platformId]
+    );
+  };
+
+  const handleGenerate = async () => {
+    if (!productInfo.trim()) {
+      toast({
+        title: "Add product details",
+        description: "Please describe your product first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedPlatforms.length === 0) {
+      toast({
+        title: "Select platforms",
+        description: "Please select at least one platform",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-content', {
+        body: {
+          type: 'campaign',
+          productInfo,
+          goal: selectedGoal,
+          platforms: selectedPlatforms,
+        }
+      });
+
+      if (error) throw error;
+
+      setGeneratedContent(data.content);
+      toast({
+        title: "Campaign created! 🎉",
+        description: "Your marketing content is ready",
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Generation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Text copied to clipboard",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      <Navigation />
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Create Marketing Campaign</h1>
+            <p className="text-muted-foreground">
+              Generate engaging social media content for your product
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Campaign Details</CardTitle>
+                <CardDescription>Tell us about your product and campaign goals</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <Label htmlFor="product-info">Product Information</Label>
+                  <Textarea
+                    id="product-info"
+                    placeholder="E.g., Handmade leather wallet, premium quality, perfect gift..."
+                    value={productInfo}
+                    onChange={(e) => setProductInfo(e.target.value)}
+                    rows={3}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-3 block">Campaign Goal</Label>
+                  <RadioGroup value={selectedGoal} onValueChange={setSelectedGoal}>
+                    <div className="grid grid-cols-2 gap-3">
+                      {GOALS.map((goal) => (
+                        <div key={goal.id} className="flex items-center space-x-2">
+                          <RadioGroupItem value={goal.id} id={goal.id} />
+                          <Label htmlFor={goal.id} className="cursor-pointer">
+                            {goal.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label className="mb-3 block">Select Platforms</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {PLATFORMS.map((platform) => (
+                      <div key={platform.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={platform.id}
+                          checked={selectedPlatforms.includes(platform.id)}
+                          onCheckedChange={() => handlePlatformToggle(platform.id)}
+                        />
+                        <Label htmlFor={platform.id} className="cursor-pointer">
+                          {platform.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleGenerate} 
+                  disabled={isGenerating}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isGenerating ? (
+                    <>Generating...</>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Generate Campaign
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {generatedContent && (
+              <Card className="border-primary">
+                <CardHeader>
+                  <CardTitle>Your Campaign Content 🎉</CardTitle>
+                  <CardDescription>Copy and use this content for your marketing</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-base font-semibold">Campaign Caption</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(generatedContent.caption)}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground whitespace-pre-line">{generatedContent.caption}</p>
+                  </div>
+
+                  <div>
+                    <Label className="text-base font-semibold mb-2 block">Hashtags</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedContent.hashtags?.map((tag: string, i: number) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium cursor-pointer"
+                          onClick={() => copyToClipboard(`#${tag}`)}
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {generatedContent.whatsapp_message && (
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-base font-semibold">WhatsApp Message</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyToClipboard(generatedContent.whatsapp_message)}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-muted-foreground">{generatedContent.whatsapp_message}</p>
+                    </div>
+                  )}
+
+                  {generatedContent.slogan && (
+                    <div>
+                      <Label className="text-base font-semibold mb-2 block">Campaign Slogan</Label>
+                      <p className="text-lg font-medium text-primary">{generatedContent.slogan}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-4">
+                    <Button onClick={() => navigate("/dashboard")} className="flex-1" size="lg">
+                      Back to Dashboard
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setGeneratedContent(null)}
+                      className="flex-1"
+                      size="lg"
+                    >
+                      Generate Another
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
