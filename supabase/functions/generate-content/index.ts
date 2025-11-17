@@ -49,10 +49,11 @@ Return your response as a JSON object with this structure:
   "caption": "Engaging post caption (150-200 words)",
   "hashtags": ["hashtag1", "hashtag2", "hashtag3", "hashtag4", "hashtag5"],
   "whatsapp_message": "Short WhatsApp selling message (max 100 words)",
-  "slogan": "Catchy campaign slogan"
+  "slogan": "Catchy campaign slogan",
+  "image_prompts": ["Detailed image prompt 1 for social media post", "Detailed image prompt 2 with different style"]
 }`;
 
-      userPrompt = `Create a ${goal || 'engagement'} campaign for ${productInfo || 'an artisan product'} on ${platformsList}`;
+      userPrompt = `Create a ${goal || 'engagement'} campaign for ${productInfo || 'an artisan product'} on ${platformsList}. Include 2 different image prompts that would work well for social media posts.`;
     }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -97,8 +98,52 @@ Return your response as a JSON object with this structure:
 
     console.log('Content generated successfully');
 
+    // Generate images for campaign type
+    let generatedImages = [];
+    if (type === 'campaign' && generatedContent.image_prompts) {
+      console.log('Generating campaign images...');
+      
+      for (const imagePrompt of generatedContent.image_prompts.slice(0, 2)) {
+        try {
+          const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image',
+              messages: [
+                { 
+                  role: 'user', 
+                  content: `Create a beautiful social media marketing image: ${imagePrompt}. Style: warm, inviting, professional, artisan aesthetic with soft natural lighting.` 
+                }
+              ],
+              modalities: ['image', 'text']
+            }),
+          });
+
+          if (imageResponse.ok) {
+            const imageData = await imageResponse.json();
+            const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+            if (imageUrl) {
+              generatedImages.push(imageUrl);
+              console.log('Image generated successfully');
+            }
+          } else {
+            console.error('Image generation failed:', imageResponse.status);
+          }
+        } catch (imageError) {
+          console.error('Error generating image:', imageError);
+        }
+      }
+    }
+
     return new Response(
-      JSON.stringify({ content: generatedContent }),
+      JSON.stringify({ 
+        content: generatedContent,
+        images: generatedImages 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
