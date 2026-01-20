@@ -5,13 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, ExternalLink, Plus } from "lucide-react";
+import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check } from "lucide-react";
+import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
+import { ProductAnalytics } from "@/components/ProductAnalytics";
+
+interface ProductLink {
+  id: string;
+  slug: string;
+}
+
+interface Product {
+  id: string;
+  title: string;
+  short_description: string | null;
+  category: string | null;
+  tags: string[] | null;
+  image_url: string | null;
+  enhanced_image_url: string | null;
+  product_links: ProductLink[];
+}
 
 export default function Catalog() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -27,12 +49,21 @@ export default function Catalog() {
 
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          id,
+          title,
+          short_description,
+          category,
+          tags,
+          image_url,
+          enhanced_image_url,
+          product_links (id, slug)
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+      setProducts((data as unknown as Product[]) || []);
     } catch (error: any) {
       toast({
         title: "Error loading products",
@@ -68,6 +99,22 @@ export default function Catalog() {
     }
   };
 
+  const copyProductLink = (slug: string) => {
+    const link = `${window.location.origin}/p/${slug}`;
+    navigator.clipboard.writeText(link);
+    setCopiedLink(slug);
+    setTimeout(() => setCopiedLink(null), 2000);
+    toast({
+      title: "Link copied!",
+      description: "Share it on WhatsApp, Instagram, or anywhere",
+    });
+  };
+
+  const openCreateLinkModal = (product: Product) => {
+    setSelectedProduct(product);
+    setShowLinkModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
@@ -77,7 +124,7 @@ export default function Catalog() {
             <div>
               <h1 className="text-3xl font-bold mb-2">Product Catalog</h1>
               <p className="text-muted-foreground">
-                Manage your saved product listings
+                Manage your products and shareable links
               </p>
             </div>
             <Button onClick={() => navigate("/generate/description")} size="lg">
@@ -102,7 +149,18 @@ export default function Catalog() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <Card key={product.id} className="hover:shadow-soft transition-all">
+                <Card key={product.id} className="hover:shadow-soft transition-all overflow-hidden">
+                  {/* Product Image */}
+                  {(product.enhanced_image_url || product.image_url) && (
+                    <div className="aspect-video overflow-hidden bg-secondary">
+                      <img 
+                        src={product.enhanced_image_url || product.image_url || ''} 
+                        alt={product.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
                   <CardHeader>
                     <CardTitle className="line-clamp-2">{product.title}</CardTitle>
                     <CardDescription className="line-clamp-2">
@@ -134,6 +192,53 @@ export default function Catalog() {
                       </div>
                     )}
 
+                    {/* Product Link Section */}
+                    {product.product_links && product.product_links.length > 0 ? (
+                      <div className="space-y-2 pt-2 border-t">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">Shareable Link</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyProductLink(product.product_links[0].slug)}
+                          >
+                            {copiedLink === product.product_links[0].slug ? (
+                              <Check className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setShowAnalytics(
+                            showAnalytics === product.product_links[0].id 
+                              ? null 
+                              : product.product_links[0].id
+                          )}
+                        >
+                          <BarChart3 className="w-3 h-3 mr-1" />
+                          {showAnalytics === product.product_links[0].id ? 'Hide' : 'View'} Analytics
+                        </Button>
+                        
+                        {showAnalytics === product.product_links[0].id && (
+                          <ProductAnalytics productLinkId={product.product_links[0].id} />
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => openCreateLinkModal(product)}
+                      >
+                        <Link2 className="w-3 h-3 mr-1" />
+                        Create Shareable Link
+                      </Button>
+                    )}
+
                     <div className="flex gap-2 pt-2">
                       <Button
                         variant="outline"
@@ -159,6 +264,16 @@ export default function Catalog() {
           )}
         </div>
       </main>
+
+      {selectedProduct && (
+        <CreateProductLinkModal
+          productId={selectedProduct.id}
+          productTitle={selectedProduct.title}
+          open={showLinkModal}
+          onOpenChange={setShowLinkModal}
+          onLinkCreated={fetchProducts}
+        />
+      )}
     </div>
   );
 }

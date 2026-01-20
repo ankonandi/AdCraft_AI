@@ -94,10 +94,108 @@ export type Database = {
           },
         ]
       }
+      link_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          ip_hash: string | null
+          product_link_id: string
+          referrer: string | null
+          source: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          ip_hash?: string | null
+          product_link_id: string
+          referrer?: string | null
+          source?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          ip_hash?: string | null
+          product_link_id?: string
+          referrer?: string | null
+          source?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_clicks_product_link_id_fkey"
+            columns: ["product_link_id"]
+            isOneToOne: false
+            referencedRelation: "product_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_links: {
+        Row: {
+          created_at: string
+          id: string
+          instagram_handle: string | null
+          is_active: boolean | null
+          marketplace_url: string | null
+          product_id: string | null
+          slug: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          marketplace_url?: string | null
+          product_id?: string | null
+          slug: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          marketplace_url?: string | null
+          product_id?: string | null
+          slug?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
           created_at: string | null
+          enhanced_image_url: string | null
           id: string
           image_url: string | null
           long_description: string | null
@@ -110,6 +208,7 @@ export type Database = {
         Insert: {
           category?: string | null
           created_at?: string | null
+          enhanced_image_url?: string | null
           id?: string
           image_url?: string | null
           long_description?: string | null
@@ -122,6 +221,7 @@ export type Database = {
         Update: {
           category?: string | null
           created_at?: string | null
+          enhanced_image_url?: string | null
           id?: string
           image_url?: string | null
           long_description?: string | null
