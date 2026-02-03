@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, Copy, Save, Download } from "lucide-react";
+import { Sparkles, Copy, Package } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const PLATFORMS = [
   { id: "instagram", label: "Instagram" },
@@ -24,6 +25,14 @@ const GOALS = [
   { id: "sale", label: "Sale / Promo" },
 ];
 
+interface Product {
+  id: string;
+  title: string;
+  short_description: string | null;
+  image_url: string | null;
+  enhanced_image_url: string | null;
+}
+
 export default function GenerateCampaign() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -33,6 +42,47 @@ export default function GenerateCampaign() {
   const [selectedGoal, setSelectedGoal] = useState("engagement");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  
+  // Product selection
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, short_description, image_url, enhanced_image_url')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
+  const handleProductSelect = (productId: string) => {
+    setSelectedProductId(productId);
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      // Auto-fill product info when selecting an existing product
+      setProductInfo(`${product.title}${product.short_description ? `: ${product.short_description}` : ''}`);
+    }
+  };
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev =>
@@ -46,7 +96,7 @@ export default function GenerateCampaign() {
     if (!productInfo.trim()) {
       toast({
         title: "Add product details",
-        description: "Please describe your product first",
+        description: "Please describe your product or select one from your catalog",
         variant: "destructive",
       });
       return;
@@ -117,9 +167,60 @@ export default function GenerateCampaign() {
             <Card>
               <CardHeader>
                 <CardTitle>Campaign Details</CardTitle>
-                <CardDescription>Tell us about your product and campaign goals</CardDescription>
+                <CardDescription>
+                  Select from your catalog or describe any product
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Product Selection - Optional */}
+                <div>
+                  <Label className="mb-2 block">
+                    <Package className="w-4 h-4 inline mr-2" />
+                    Select from Catalog (Optional)
+                  </Label>
+                  <Select
+                    value={selectedProductId}
+                    onValueChange={handleProductSelect}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={isLoadingProducts ? "Loading products..." : "Choose a product or type below"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">-- Don't use existing product --</SelectItem>
+                      {products.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          <div className="flex items-center gap-2">
+                            {(product.enhanced_image_url || product.image_url) && (
+                              <img 
+                                src={product.enhanced_image_url || product.image_url || ''} 
+                                alt="" 
+                                className="w-6 h-6 rounded object-cover"
+                              />
+                            )}
+                            <span>{product.title}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {products.length === 0 && !isLoadingProducts && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      No products in catalog yet. You can still create campaigns by describing your product below.
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      {selectedProductId && selectedProductId !== "none" ? "Edit product info" : "Or describe your product"}
+                    </span>
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="product-info">Product Information</Label>
                   <Textarea
