@@ -5,10 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check } from "lucide-react";
+import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check, Sparkles } from "lucide-react";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 import { ProductAnalytics } from "@/components/ProductAnalytics";
-
+import { QuickAddProductModal } from "@/components/QuickAddProductModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 interface ProductLink {
   id: string;
   slug: string;
@@ -32,6 +38,7 @@ export default function Catalog() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
@@ -127,10 +134,24 @@ export default function Catalog() {
                 Manage your products and shareable links
               </p>
             </div>
-            <Button onClick={() => navigate("/generate/description")} size="lg">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="lg">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Product
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowQuickAddModal(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Quick Add
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/generate/description")}>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI-Powered Description
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {isLoading ? (
@@ -274,6 +295,12 @@ export default function Catalog() {
           onLinkCreated={fetchProducts}
         />
       )}
+
+      <QuickAddProductModal
+        open={showQuickAddModal}
+        onOpenChange={setShowQuickAddModal}
+        onProductCreated={fetchProducts}
+      />
     </div>
   );
 }
