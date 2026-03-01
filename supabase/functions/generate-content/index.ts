@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, imageData, productInfo, goal, platforms } = await req.json();
+    const { type, imageData, productInfo, goal, platforms, productImageUrl } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -103,8 +103,28 @@ Return your response as a JSON object with this structure:
     if (type === 'campaign' && generatedContent.image_prompts) {
       console.log('Generating campaign images...');
       
+      // If we have a product image, edit it with different styles instead of generating from scratch
+      const hasProductImage = !!productImageUrl;
+      
       for (const imagePrompt of generatedContent.image_prompts.slice(0, 2)) {
         try {
+          let messageContent;
+          if (hasProductImage) {
+            // Edit the actual product image to create marketing variations
+            messageContent = [
+              {
+                type: 'text',
+                text: `Edit this product photo to create a social media marketing image. Apply this style: ${imagePrompt}. Keep the EXACT same product visible and recognizable. Only change the background, lighting, layout, and add marketing elements. Do NOT replace or change the product itself. Make it look professional and ready for social media.`
+              },
+              {
+                type: 'image_url',
+                image_url: { url: productImageUrl }
+              }
+            ];
+          } else {
+            messageContent = `Create a beautiful social media marketing image: ${imagePrompt}. Style: warm, inviting, professional, artisan aesthetic with soft natural lighting.`;
+          }
+
           const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -114,18 +134,15 @@ Return your response as a JSON object with this structure:
             body: JSON.stringify({
               model: 'google/gemini-2.5-flash-image',
               messages: [
-                { 
-                  role: 'user', 
-                  content: `Create a beautiful social media marketing image: ${imagePrompt}. Style: warm, inviting, professional, artisan aesthetic with soft natural lighting.` 
-                }
+                { role: 'user', content: messageContent }
               ],
               modalities: ['image', 'text']
             }),
           });
 
           if (imageResponse.ok) {
-            const imageData = await imageResponse.json();
-            const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+            const imgData = await imageResponse.json();
+            const imageUrl = imgData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
             if (imageUrl) {
               generatedImages.push(imageUrl);
               console.log('Image generated successfully');
