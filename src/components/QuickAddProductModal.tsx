@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, Upload, X } from "lucide-react";
+import { Package, Upload, X, Loader2, Sparkles } from "lucide-react";
 
 interface QuickAddProductModalProps {
   open: boolean;
@@ -63,6 +63,7 @@ export function QuickAddProductModal({
       if (!user) throw new Error("Not authenticated");
 
       let imageUrl: string | null = null;
+      let enhancedImageUrl: string | null = null;
 
       // Upload image if provided
       if (imageFile) {
@@ -75,12 +76,23 @@ export function QuickAddProductModal({
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
-          // Continue without image if upload fails
         } else {
           const { data: { publicUrl } } = supabase.storage
             .from('product-images')
             .getPublicUrl(fileName);
           imageUrl = publicUrl;
+
+          // Auto-enhance the image
+          try {
+            const { data: enhanceData, error: enhanceError } = await supabase.functions.invoke('enhance-image', {
+              body: { imageData: imagePreview }
+            });
+            if (!enhanceError && enhanceData?.enhancedImage) {
+              enhancedImageUrl = enhanceData.enhancedImage;
+            }
+          } catch (enhanceErr) {
+            console.error('Auto-enhance failed, using original:', enhanceErr);
+          }
         }
       }
 
@@ -99,6 +111,7 @@ export function QuickAddProductModal({
           category: category.trim() || null,
           tags: parsedTags.length > 0 ? parsedTags : null,
           image_url: imageUrl,
+          enhanced_image_url: enhancedImageUrl,
         });
 
       if (error) throw error;
@@ -224,7 +237,17 @@ export function QuickAddProductModal({
             disabled={isCreating || !title.trim()}
             className="w-full"
           >
-            {isCreating ? "Adding..." : "Add Product"}
+            {isCreating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {imageFile ? "Uploading & Enhancing..." : "Adding..."}
+              </>
+            ) : (
+              <>
+                {imageFile && <Sparkles className="w-4 h-4 mr-2" />}
+                Add Product
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>
