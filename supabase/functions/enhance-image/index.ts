@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData } = await req.json();
+    const { imageData, customPrompt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -23,9 +23,14 @@ serve(async (req) => {
       throw new Error('No image data provided');
     }
 
-    console.log('Enhancing image...');
+    const basePrompt = 'Enhance this product photo: improve lighting to be bright and natural, clean up the background to be neutral white or soft gradient, increase sharpness and clarity, apply minor color correction while keeping the product true to its original appearance. The result should look professional and ready for e-commerce or social media. Do not add any text, logos, or watermarks.';
+    
+    const finalPrompt = customPrompt 
+      ? `${basePrompt} Additionally, the user wants: ${customPrompt}` 
+      : basePrompt;
 
-    // Use Gemini image model to enhance the product photo
+    console.log('Enhancing image...', customPrompt ? `Custom: ${customPrompt}` : 'Default enhancement');
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -40,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: 'Enhance this product photo: improve lighting to be bright and natural, clean up the background to be neutral white or soft gradient, increase sharpness and clarity, apply minor color correction while keeping the product true to its original appearance. The result should look professional and ready for e-commerce or social media. Do not add any text, logos, or watermarks.'
+                text: finalPrompt
               },
               {
                 type: 'image_url',
