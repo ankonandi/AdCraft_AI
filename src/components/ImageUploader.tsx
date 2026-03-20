@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Sparkles, Check, Loader2, X } from "lucide-react";
+import { Upload, Sparkles, Loader2, X, RotateCcw, History } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ImageUploaderProps {
   onImageReady: (originalImage: string, enhancedImage: string | null) => void;
@@ -19,6 +20,9 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isEnhanced, setIsEnhanced] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [iterationCount, setIterationCount] = useState(0);
+  const [enhancementHistory, setEnhancementHistory] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,18 +43,23 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
       setOriginalImage(base64);
       setEnhancedImage(null);
       setIsEnhanced(false);
+      setIterationCount(0);
+      setEnhancementHistory([]);
+      setCustomPrompt("");
     };
     reader.readAsDataURL(file);
   };
 
   const handleEnhance = async () => {
-    if (!originalImage) return;
+    // Use enhanced image as input for re-enhancement, fallback to original
+    const inputImage = enhancedImage || originalImage;
+    if (!inputImage) return;
 
     setIsEnhancing(true);
     try {
       const { data, error } = await supabase.functions.invoke('enhance-image', {
         body: { 
-          imageData: originalImage,
+          imageData: inputImage,
           customPrompt: customPrompt.trim() || undefined,
         }
       });
@@ -58,25 +67,59 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
       if (error) throw error;
 
       if (data.enhancedImage) {
+        // Save current enhanced image to history before replacing
+        if (enhancedImage) {
+          setEnhancementHistory(prev => [...prev, enhancedImage]);
+        }
         setEnhancedImage(data.enhancedImage);
         setIsEnhanced(true);
+        setIterationCount(prev => prev + 1);
+        setCustomPrompt("");
         toast({
-          title: "Image enhanced! ✨",
-          description: "Your product photo has been professionally enhanced",
+          title: `Image enhanced! ✨ (v${iterationCount + 1})`,
+          description: customPrompt.trim() 
+            ? `Applied: "${customPrompt.trim()}"` 
+            : "Default professional enhancement applied",
         });
-        onImageReady(originalImage, data.enhancedImage);
+        onImageReady(originalImage!, data.enhancedImage);
       }
     } catch (error: any) {
       console.error('Enhancement error:', error);
       toast({
         title: "Enhancement failed",
-        description: error.message || "Could not enhance image. Using original instead.",
+        description: error.message || "Could not enhance image. Try again.",
         variant: "destructive",
       });
-      onImageReady(originalImage, null);
     } finally {
       setIsEnhancing(false);
     }
+  };
+
+  const handleRevertToVersion = (index: number) => {
+    const selectedVersion = enhancementHistory[index];
+    // Move current to end, set selected as current
+    setEnhancedImage(selectedVersion);
+    setEnhancementHistory(prev => {
+      const newHistory = [...prev];
+      newHistory.splice(index, 1);
+      if (enhancedImage) newHistory.push(enhancedImage);
+      return newHistory;
+    });
+    setIterationCount(index + 1);
+    onImageReady(originalImage!, selectedVersion);
+    toast({ title: `Reverted to version ${index + 1}` });
+  };
+
+  const handleRevertToOriginal = () => {
+    if (enhancedImage) {
+      setEnhancementHistory(prev => [...prev, enhancedImage]);
+    }
+    setEnhancedImage(null);
+    setIsEnhanced(false);
+    setIterationCount(0);
+    setCustomPrompt("");
+    onImageReady(originalImage!, null);
+    toast({ title: "Reverted to original image" });
   };
 
   const handleSkipEnhancement = () => {
@@ -90,6 +133,8 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
     setEnhancedImage(null);
     setIsEnhanced(false);
     setCustomPrompt("");
+    setIterationCount(0);
+    setEnhancementHistory([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -122,14 +167,59 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
         <Card className="overflow-hidden">
           <CardContent className="p-4">
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
-                onClick={clearImage}
-              >
-                <X className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {iterationCount > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      v{iterationCount}
+                    </Badge>
+                  )}
+                  {enhancementHistory.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs gap-1"
+                      onClick={() => setShowHistory(!showHistory)}
+                    >
+                      <History className="w-3 h-3" />
+                      {enhancementHistory.length} previous
+                    </Button>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={clearImage}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Version History */}
+              {showHistory && enhancementHistory.length > 0 && (
+                <div className="mb-4 p-3 rounded-lg bg-secondary/50 space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">Enhancement History</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {enhancementHistory.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleRevertToVersion(i)}
+                        className="flex-shrink-0 group relative"
+                      >
+                        <img
+                          src={img}
+                          alt={`Version ${i + 1}`}
+                          className="w-16 h-16 rounded-md object-cover border-2 border-transparent group-hover:border-primary transition-colors"
+                        />
+                        <span className="absolute bottom-0 left-0 right-0 text-[10px] bg-background/80 text-center rounded-b-md">
+                          v{i + 1}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -145,7 +235,7 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
 
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">
-                    {isEnhanced ? "Enhanced ✨" : "Enhanced Preview"}
+                    {isEnhanced ? `Enhanced ✨ (v${iterationCount})` : "Enhanced Preview"}
                   </p>
                   <div className="aspect-square overflow-hidden rounded-lg bg-secondary flex items-center justify-center">
                     {enhancedImage ? (
@@ -171,61 +261,79 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
                 </div>
               </div>
 
-              {/* Custom Enhancement Prompt */}
-              {!isEnhanced && (
+              {/* Enhancement Prompt — always visible when not enhancing */}
+              {!isEnhancing && (
                 <div className="mt-4">
                   <Input
-                    placeholder="Optional: e.g., make background white, brighten colors, remove shadows..."
+                    placeholder={isEnhanced 
+                      ? "e.g., make it brighter, change background to beige, add warm tones..." 
+                      : "Optional: e.g., make background white, brighten colors, remove shadows..."}
                     value={customPrompt}
                     onChange={(e) => setCustomPrompt(e.target.value)}
-                    disabled={isEnhancing}
                     className="text-sm"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Leave empty for default enhancement, or describe how you'd like it improved
+                    {isEnhanced 
+                      ? "Describe further changes — enhancement builds on the current version"
+                      : "Leave empty for default enhancement, or describe how you'd like it improved"}
                   </p>
                 </div>
               )}
 
               {/* Action Buttons */}
               <div className="flex gap-3 mt-4">
+                <Button
+                  onClick={handleEnhance}
+                  disabled={isEnhancing}
+                  className="flex-1"
+                >
+                  {isEnhancing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Enhancing...
+                    </>
+                  ) : isEnhanced ? (
+                    <>
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Re-Enhance
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Enhance Image
+                    </>
+                  )}
+                </Button>
+
                 {!isEnhanced && (
+                  <Button
+                    variant="outline"
+                    onClick={handleSkipEnhancement}
+                    disabled={isEnhancing}
+                  >
+                    Skip
+                  </Button>
+                )}
+
+                {isEnhanced && (
                   <>
                     <Button
-                      onClick={handleEnhance}
+                      variant="outline"
+                      onClick={handleRevertToOriginal}
                       disabled={isEnhancing}
-                      className="flex-1"
+                      size="sm"
                     >
-                      {isEnhancing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Enhancing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Enhance Image
-                        </>
-                      )}
+                      Reset
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={handleSkipEnhancement}
+                      onClick={() => fileInputRef.current?.click()}
                       disabled={isEnhancing}
+                      size="sm"
                     >
-                      Skip
+                      <Upload className="w-4 h-4" />
                     </Button>
                   </>
-                )}
-                {isEnhanced && (
-                  <Button
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex-1"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Different Photo
-                  </Button>
                 )}
               </div>
             </div>
