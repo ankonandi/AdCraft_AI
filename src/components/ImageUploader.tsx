@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, Sparkles, Check, Loader2, X } from "lucide-react";
@@ -17,12 +18,12 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
   const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isEnhanced, setIsEnhanced] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState("");
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid file type",
@@ -32,7 +33,6 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
       return;
     }
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64 = event.target?.result as string;
@@ -49,7 +49,10 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
     setIsEnhancing(true);
     try {
       const { data, error } = await supabase.functions.invoke('enhance-image', {
-        body: { imageData: originalImage }
+        body: { 
+          imageData: originalImage,
+          customPrompt: customPrompt.trim() || undefined,
+        }
       });
 
       if (error) throw error;
@@ -70,7 +73,6 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
         description: error.message || "Could not enhance image. Using original instead.",
         variant: "destructive",
       });
-      // Still proceed with original image
       onImageReady(originalImage, null);
     } finally {
       setIsEnhancing(false);
@@ -87,6 +89,7 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
     setOriginalImage(null);
     setEnhancedImage(null);
     setIsEnhanced(false);
+    setCustomPrompt("");
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -129,7 +132,6 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
               </Button>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Original Image */}
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">Original</p>
                   <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
@@ -141,7 +143,6 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
                   </div>
                 </div>
 
-                {/* Enhanced Image */}
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">
                     {isEnhanced ? "Enhanced ✨" : "Enhanced Preview"}
@@ -169,6 +170,22 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
                   </div>
                 </div>
               </div>
+
+              {/* Custom Enhancement Prompt */}
+              {!isEnhanced && (
+                <div className="mt-4">
+                  <Input
+                    placeholder="Optional: e.g., make background white, brighten colors, remove shadows..."
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    disabled={isEnhancing}
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Leave empty for default enhancement, or describe how you'd like it improved
+                  </p>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-3 mt-4">
