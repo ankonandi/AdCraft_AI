@@ -120,9 +120,7 @@ export default function GenerateCampaign() {
     setIsGenerating(true);
 
     try {
-      // Get the product image to pass for consistent campaign creatives
-      const selectedProduct = products.find(p => p.id === selectedProductId);
-      const productImageUrl = selectedProduct?.enhanced_image_url || selectedProduct?.image_url || null;
+      const productImageUrl = selectedProductImage;
 
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: {
