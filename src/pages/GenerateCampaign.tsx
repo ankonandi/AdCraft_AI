@@ -77,12 +77,18 @@ export default function GenerateCampaign() {
 
   const handleProductSelect = (productId: string) => {
     setSelectedProductId(productId);
+    if (productId === "none") {
+      setProductInfo("");
+      return;
+    }
     const product = products.find(p => p.id === productId);
     if (product) {
-      // Auto-fill product info when selecting an existing product
       setProductInfo(`${product.title}${product.short_description ? `: ${product.short_description}` : ''}`);
     }
   };
+
+  const selectedProduct = products.find(p => p.id === selectedProductId);
+  const selectedProductImage = selectedProduct?.enhanced_image_url || selectedProduct?.image_url || null;
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev =>
