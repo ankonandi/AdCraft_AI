@@ -219,6 +219,23 @@ export default function GenerateCampaign() {
                       No products in catalog yet. You can still create campaigns by describing your product below.
                     </p>
                   )}
+
+                  {/* Selected product preview */}
+                  {selectedProduct && selectedProductImage && (
+                    <div className="mt-3 flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border">
+                      <img 
+                        src={selectedProductImage} 
+                        alt={selectedProduct.title} 
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{selectedProduct.title}</p>
+                        {selectedProduct.short_description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">{selectedProduct.short_description}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="relative">
