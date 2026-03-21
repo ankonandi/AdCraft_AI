@@ -150,31 +150,14 @@ export default function GenerateCampaign() {
                     <Package className="w-4 h-4 inline mr-2" />
                     Select from Catalog (Optional)
                   </Label>
-                  <Select
+                  <ProductSelector
+                    products={products}
+                    isLoading={isLoadingProducts}
                     value={selectedProductId}
                     onValueChange={handleProductSelect}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={isLoadingProducts ? "Loading products..." : "Choose a product or type below"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">-- Don't use existing product --</SelectItem>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          <div className="flex items-center gap-2">
-                            {(product.enhanced_image_url || product.image_url) && (
-                              <img 
-                                src={product.enhanced_image_url || product.image_url || ''} 
-                                alt="" 
-                                className="w-6 h-6 rounded object-cover"
-                              />
-                            )}
-                            <span>{product.title}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Choose a product or type below"
+                    getProductImage={getProductImage}
+                  />
                   {products.length === 0 && !isLoadingProducts && (
                     <p className="text-xs text-muted-foreground mt-1">
                       No products in catalog yet. You can still create campaigns by describing your product below.
