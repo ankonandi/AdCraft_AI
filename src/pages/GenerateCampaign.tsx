@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Copy, Package } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useProducts } from "@/hooks/useProducts";
+import { ProductSelector } from "@/components/ProductSelector";
 
 const PLATFORMS = [
   { id: "instagram", label: "Instagram" },
