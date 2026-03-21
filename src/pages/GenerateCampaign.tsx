@@ -26,55 +26,7 @@ const GOALS = [
   { id: "sale", label: "Sale / Promo" },
 ];
 
-interface Product {
-  id: string;
-  title: string;
-  short_description: string | null;
-  image_url: string | null;
-  enhanced_image_url: string | null;
-}
-
-export default function GenerateCampaign() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [productInfo, setProductInfo] = useState("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
-  const [selectedGoal, setSelectedGoal] = useState("engagement");
-  const [generatedContent, setGeneratedContent] = useState<any>(null);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  
-  // Product selection
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, title, short_description, image_url, enhanced_image_url')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error: any) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  };
+// Remove inline Product interface and fetching - use shared hook
 
   const handleProductSelect = (productId: string) => {
     setSelectedProductId(productId);
