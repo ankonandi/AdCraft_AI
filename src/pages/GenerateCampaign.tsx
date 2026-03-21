@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Copy, Package } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useProducts } from "@/hooks/useProducts";
+import { ProductSelector } from "@/components/ProductSelector";
 
 const PLATFORMS = [
   { id: "instagram", label: "Instagram" },
@@ -25,55 +26,17 @@ const GOALS = [
   { id: "sale", label: "Sale / Promo" },
 ];
 
-interface Product {
-  id: string;
-  title: string;
-  short_description: string | null;
-  image_url: string | null;
-  enhanced_image_url: string | null;
-}
-
 export default function GenerateCampaign() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { products, isLoading: isLoadingProducts, getProductImage } = useProducts();
   const [isGenerating, setIsGenerating] = useState(false);
   const [productInfo, setProductInfo] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
   const [selectedGoal, setSelectedGoal] = useState("engagement");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  
-  // Product selection
-  const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, title, short_description, image_url, enhanced_image_url')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error: any) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  };
 
   const handleProductSelect = (productId: string) => {
     setSelectedProductId(productId);
@@ -187,31 +150,14 @@ export default function GenerateCampaign() {
                     <Package className="w-4 h-4 inline mr-2" />
                     Select from Catalog (Optional)
                   </Label>
-                  <Select
+                  <ProductSelector
+                    products={products}
+                    isLoading={isLoadingProducts}
                     value={selectedProductId}
                     onValueChange={handleProductSelect}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={isLoadingProducts ? "Loading products..." : "Choose a product or type below"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">-- Don't use existing product --</SelectItem>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          <div className="flex items-center gap-2">
-                            {(product.enhanced_image_url || product.image_url) && (
-                              <img 
-                                src={product.enhanced_image_url || product.image_url || ''} 
-                                alt="" 
-                                className="w-6 h-6 rounded object-cover"
-                              />
-                            )}
-                            <span>{product.title}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Choose a product or type below"
+                    getProductImage={getProductImage}
+                  />
                   {products.length === 0 && !isLoadingProducts && (
                     <p className="text-xs text-muted-foreground mt-1">
                       No products in catalog yet. You can still create campaigns by describing your product below.
