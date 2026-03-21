@@ -26,7 +26,17 @@ const GOALS = [
   { id: "sale", label: "Sale / Promo" },
 ];
 
-// Remove inline Product interface and fetching - use shared hook
+export default function GenerateCampaign() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { products, isLoading: isLoadingProducts, getProductImage } = useProducts();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [productInfo, setProductInfo] = useState("");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
+  const [selectedGoal, setSelectedGoal] = useState("engagement");
+  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
 
   const handleProductSelect = (productId: string) => {
     setSelectedProductId(productId);
