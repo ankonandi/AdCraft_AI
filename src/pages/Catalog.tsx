@@ -66,8 +66,7 @@ export default function Catalog() {
     }
   };
 
-  // Initial fetch
-  useState(() => { fetchCatalogProducts(); });
+  useEffect(() => { fetchCatalogProducts(); }, []);
 
   const handleDelete = async (id: string) => {
     try {
