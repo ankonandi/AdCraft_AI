@@ -83,6 +83,7 @@ export function ImageUploader({ onImageReady, onEnhancementComplete, className =
             : "Default professional enhancement applied",
         });
         onImageReady(originalImage!, data.enhancedImage);
+        onEnhancementComplete?.(false);
       }
     } catch (error: any) {
       console.error('Enhancement error:', error);
