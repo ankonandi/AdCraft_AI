@@ -155,7 +155,7 @@ export default function GenerateDescription() {
 
           {/* Step Indicator */}
           <div className="flex items-center justify-between mb-8 px-2">
-            {STEPS.map((s, i) => {
+            {activeSteps.map((s, i) => {
               const Icon = s.icon;
               const isActive = step === s.id;
               const isComplete = step > s.id;
@@ -173,7 +173,7 @@ export default function GenerateDescription() {
                       {s.label}
                     </span>
                   </div>
-                  {i < STEPS.length - 1 && (
+                  {i < activeSteps.length - 1 && (
                     <div className={`flex-1 h-0.5 mx-3 mt-[-1.25rem] ${
                       step > s.id ? "bg-primary" : "bg-secondary"
                     }`} />
