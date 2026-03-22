@@ -45,6 +45,8 @@ export default function Catalog() {
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProduct, setEditProduct] = useState<CatalogProduct | null>(null);
 
   // Fetch products with links (catalog-specific)
   const fetchCatalogProducts = async () => {
