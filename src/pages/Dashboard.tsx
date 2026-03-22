@@ -157,7 +157,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <Button className="w-full" size="lg">
-                  Generate Description
+                  Create Product
                 </Button>
               </CardContent>
             </Card>
