@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge";
 
 interface ImageUploaderProps {
   onImageReady: (originalImage: string, enhancedImage: string | null) => void;
+  onEnhancementComplete?: (skipped: boolean) => void;
   className?: string;
 }
 
-export function ImageUploader({ onImageReady, className = "" }: ImageUploaderProps) {
+export function ImageUploader({ onImageReady, onEnhancementComplete, className = "" }: ImageUploaderProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -82,6 +83,7 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
             : "Default professional enhancement applied",
         });
         onImageReady(originalImage!, data.enhancedImage);
+        onEnhancementComplete?.(false);
       }
     } catch (error: any) {
       console.error('Enhancement error:', error);
@@ -125,6 +127,7 @@ export function ImageUploader({ onImageReady, className = "" }: ImageUploaderPro
   const handleSkipEnhancement = () => {
     if (originalImage) {
       onImageReady(originalImage, null);
+      onEnhancementComplete?.(true);
     }
   };
 
