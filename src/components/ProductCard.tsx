@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check, ChevronDown, ChevronUp, Pencil } from "lucide-react";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 import { ProductAnalytics } from "@/components/ProductAnalytics";
 import { type Product } from "@/hooks/useProducts";
