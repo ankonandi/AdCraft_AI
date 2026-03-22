@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Sparkles } from "lucide-react";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 import { QuickAddProductModal } from "@/components/QuickAddProductModal";
+import { EditProductModal } from "@/components/EditProductModal";
 import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import {
