@@ -8,13 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, Copy, Link2, ArrowRight, ArrowLeft, Check, Package, ImageIcon, Wand2, Eye } from "lucide-react";
+import { Sparkles, Copy, Link2, ArrowRight, ArrowLeft, Check, Package, ImageIcon, FileText, Eye } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 
-const STEPS = [
+const STEPS_FULL = [
+  { id: 1, label: "Upload & Enhance", icon: ImageIcon },
+  { id: 2, label: "Product Details", icon: FileText },
+  { id: 3, label: "Review & Edit", icon: Eye },
+  { id: 4, label: "Done", icon: Check },
+];
+
+const STEPS_SKIP = [
   { id: 1, label: "Upload Photo", icon: ImageIcon },
-  { id: 2, label: "AI Magic", icon: Wand2 },
+  { id: 2, label: "Product Details", icon: FileText },
   { id: 3, label: "Review & Edit", icon: Eye },
   { id: 4, label: "Done", icon: Check },
 ];
