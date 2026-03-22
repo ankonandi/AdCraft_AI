@@ -21,6 +21,7 @@ interface ProductWithLinks extends Product {
 interface ProductCardProps {
   product: ProductWithLinks;
   onDelete: (id: string) => void;
+  onEdit: (product: ProductWithLinks) => void;
   onCreateLink: (product: ProductWithLinks) => void;
 }
 
