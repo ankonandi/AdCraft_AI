@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, ExternalLink, Plus, Link2, BarChart3, Copy, Check, ChevronDown, ChevronUp, Pencil } from "lucide-react";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 import { ProductAnalytics } from "@/components/ProductAnalytics";
 import { type Product } from "@/hooks/useProducts";
@@ -21,10 +21,11 @@ interface ProductWithLinks extends Product {
 interface ProductCardProps {
   product: ProductWithLinks;
   onDelete: (id: string) => void;
+  onEdit: (product: ProductWithLinks) => void;
   onCreateLink: (product: ProductWithLinks) => void;
 }
 
-export function ProductCard({ product, onDelete, onCreateLink }: ProductCardProps) {
+export function ProductCard({ product, onDelete, onEdit, onCreateLink }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
@@ -117,9 +118,13 @@ export function ProductCard({ product, onDelete, onCreateLink }: ProductCardProp
         )}
 
         <div className="flex gap-2 pt-2">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(product)}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit
+          </Button>
           <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate("/generate/campaign")}>
             <ExternalLink className="w-3 h-3 mr-1" />
-            Create Campaign
+            Campaign
           </Button>
           <Button variant="ghost" size="sm" onClick={() => onDelete(product.id)}>
             <Trash2 className="w-4 h-4 text-destructive" />

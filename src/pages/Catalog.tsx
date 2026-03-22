@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Sparkles } from "lucide-react";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 import { QuickAddProductModal } from "@/components/QuickAddProductModal";
+import { EditProductModal } from "@/components/EditProductModal";
 import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import {
@@ -44,6 +45,8 @@ export default function Catalog() {
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProduct, setEditProduct] = useState<CatalogProduct | null>(null);
 
   // Fetch products with links (catalog-specific)
   const fetchCatalogProducts = async () => {
@@ -137,6 +140,10 @@ export default function Catalog() {
                   key={product.id}
                   product={product}
                   onDelete={handleDelete}
+                  onEdit={(p) => {
+                    setEditProduct(p as CatalogProduct);
+                    setShowEditModal(true);
+                  }}
                   onCreateLink={(p) => {
                     setSelectedProduct(p as CatalogProduct);
                     setShowLinkModal(true);
@@ -162,6 +169,13 @@ export default function Catalog() {
         open={showQuickAddModal}
         onOpenChange={setShowQuickAddModal}
         onProductCreated={handleProductCreated}
+      />
+
+      <EditProductModal
+        product={editProduct}
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        onProductUpdated={handleProductCreated}
       />
     </div>
   );
