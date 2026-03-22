@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface ImageUploaderProps {
   onImageReady: (originalImage: string, enhancedImage: string | null) => void;
+  onEnhancementComplete?: (skipped: boolean) => void;
   className?: string;
 }
 
