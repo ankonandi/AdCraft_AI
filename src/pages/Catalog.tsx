@@ -170,6 +170,13 @@ export default function Catalog() {
         onOpenChange={setShowQuickAddModal}
         onProductCreated={handleProductCreated}
       />
+
+      <EditProductModal
+        product={editProduct}
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        onProductUpdated={handleProductCreated}
+      />
     </div>
   );
 }
