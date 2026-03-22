@@ -38,6 +38,7 @@ export default function GenerateDescription() {
   const [savedProductId, setSavedProductId] = useState<string | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [skippedEnhancement, setSkippedEnhancement] = useState(false);
 
   // Editable fields after generation
   const [editTitle, setEditTitle] = useState("");
