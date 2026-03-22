@@ -150,7 +150,7 @@ export default function Dashboard() {
             >
               <CardHeader>
                 <FileText className="w-10 h-10 text-primary mb-3" />
-                <CardTitle>Product Description</CardTitle>
+                <CardTitle>New Product</CardTitle>
                 <CardDescription>
                   Upload a photo and get compelling product descriptions, titles, and tags
                 </CardDescription>
