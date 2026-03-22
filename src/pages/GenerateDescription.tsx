@@ -183,7 +183,7 @@ export default function GenerateDescription() {
             })}
           </div>
 
-          {/* Step 1: Upload & Notes */}
+          {/* Step 1: Upload & Enhance Image */}
           {step === 1 && (
             <div className="space-y-6">
               <Card>
@@ -192,17 +192,39 @@ export default function GenerateDescription() {
                     <ImageIcon className="w-5 h-5" />
                     Product Photo
                   </CardTitle>
-                  <CardDescription>Upload your product image — AI will enhance it automatically</CardDescription>
+                  <CardDescription>Upload your product image — enhance it or skip to continue</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ImageUploader onImageReady={handleImageReady} />
+                  <ImageUploader 
+                    onImageReady={handleImageReady} 
+                    onEnhancementComplete={handleEnhancementComplete}
+                  />
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* Step 2: Product Details (notes + AI generation) */}
+          {step === 2 && !isGenerating && (
+            <div className="space-y-6">
+              {/* Show current image preview */}
+              {(enhancedImage || originalImage) && (
+                <div className="aspect-video overflow-hidden rounded-xl bg-secondary max-h-48">
+                  <img
+                    src={enhancedImage || originalImage || ''}
+                    alt="Product"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Tell us about your product</CardTitle>
-                  <CardDescription>Help AI understand your product better (optional)</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Tell us about your product
+                  </CardTitle>
+                  <CardDescription>Help AI generate better titles, descriptions & tags (optional)</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
@@ -211,27 +233,33 @@ export default function GenerateDescription() {
                     onChange={(e) => setProductNote(e.target.value)}
                     rows={3}
                   />
-                  <Button
-                    onClick={() => { setStep(2); handleGenerate(); }}
-                    disabled={!productNote.trim() && !originalImage}
-                    className="w-full"
-                    size="lg"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Description with AI
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => setStep(1)} className="flex-shrink-0">
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={!productNote.trim() && !originalImage}
+                      className="flex-1"
+                      size="lg"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Generate with AI
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
           )}
 
           {/* Step 2: Generating (loading state) */}
-          {step === 2 && (
+          {step === 2 && isGenerating && (
             <Card>
               <CardContent className="py-16 text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 animate-pulse">
-                  <Wand2 className="w-8 h-8 text-primary" />
+                  <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">AI is crafting your product listing…</h2>
                 <p className="text-muted-foreground">Generating title, description, tags & more</p>
