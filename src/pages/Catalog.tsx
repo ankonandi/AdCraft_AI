@@ -140,6 +140,10 @@ export default function Catalog() {
                   key={product.id}
                   product={product}
                   onDelete={handleDelete}
+                  onEdit={(p) => {
+                    setEditProduct(p as CatalogProduct);
+                    setShowEditModal(true);
+                  }}
                   onCreateLink={(p) => {
                     setSelectedProduct(p as CatalogProduct);
                     setShowLinkModal(true);
