@@ -25,7 +25,7 @@ interface ProductCardProps {
   onCreateLink: (product: ProductWithLinks) => void;
 }
 
-export function ProductCard({ product, onDelete, onCreateLink }: ProductCardProps) {
+export function ProductCard({ product, onDelete, onEdit, onCreateLink }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
