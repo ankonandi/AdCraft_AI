@@ -433,6 +433,7 @@ export default function GenerateDescription() {
                     setEditLongDesc("");
                     setEditCategory("");
                     setEditTags("");
+                    setSkippedEnhancement(false);
                   }}>
                     Create Another Product
                   </Button>
