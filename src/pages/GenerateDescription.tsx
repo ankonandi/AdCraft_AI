@@ -52,6 +52,13 @@ export default function GenerateDescription() {
     setEnhancedImage(enhanced);
   };
 
+  const handleEnhancementComplete = (skipped: boolean) => {
+    setSkippedEnhancement(skipped);
+    setStep(2);
+  };
+
+  const activeSteps = skippedEnhancement ? STEPS_SKIP : STEPS_FULL;
+
   const handleGenerate = async () => {
     if (!productNote.trim() && !originalImage) {
       toast({
