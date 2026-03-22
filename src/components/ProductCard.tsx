@@ -118,9 +118,13 @@ export function ProductCard({ product, onDelete, onEdit, onCreateLink }: Product
         )}
 
         <div className="flex gap-2 pt-2">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(product)}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit
+          </Button>
           <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate("/generate/campaign")}>
             <ExternalLink className="w-3 h-3 mr-1" />
-            Create Campaign
+            Campaign
           </Button>
           <Button variant="ghost" size="sm" onClick={() => onDelete(product.id)}>
             <Trash2 className="w-4 h-4 text-destructive" />
