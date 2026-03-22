@@ -127,6 +127,7 @@ export function ImageUploader({ onImageReady, onEnhancementComplete, className =
   const handleSkipEnhancement = () => {
     if (originalImage) {
       onImageReady(originalImage, null);
+      onEnhancementComplete?.(true);
     }
   };
 
