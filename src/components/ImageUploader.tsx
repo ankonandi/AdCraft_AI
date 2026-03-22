@@ -13,7 +13,7 @@ interface ImageUploaderProps {
   className?: string;
 }
 
-export function ImageUploader({ onImageReady, className = "" }: ImageUploaderProps) {
+export function ImageUploader({ onImageReady, onEnhancementComplete, className = "" }: ImageUploaderProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
