@@ -11,6 +11,7 @@ import GenerateCampaign from "./pages/GenerateCampaign";
 import Catalog from "./pages/Catalog";
 import History from "./pages/History";
 import ProductLink from "./pages/ProductLink";
+import CollectionLink from "./pages/CollectionLink";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
