@@ -11,6 +11,7 @@ import GenerateCampaign from "./pages/GenerateCampaign";
 import Catalog from "./pages/Catalog";
 import History from "./pages/History";
 import ProductLink from "./pages/ProductLink";
+import CollectionLink from "./pages/CollectionLink";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/history" element={<History />} />
           <Route path="/p/:slug" element={<ProductLink />} />
+          <Route path="/c/:slug" element={<CollectionLink />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
