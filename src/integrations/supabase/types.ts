@@ -94,6 +94,42 @@ export type Database = {
           },
         ]
       }
+      collection_products: {
+        Row: {
+          collection_id: string
+          id: string
+          product_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          collection_id: string
+          id?: string
+          product_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          collection_id?: string
+          id?: string
+          product_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "product_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       link_clicks: {
         Row: {
           clicked_at: string
@@ -140,6 +176,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      product_collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          instagram_handle: string | null
+          is_active: boolean | null
+          marketplace_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          marketplace_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          marketplace_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
       }
       product_links: {
         Row: {
