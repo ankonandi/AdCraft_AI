@@ -177,6 +177,41 @@ export type Database = {
           },
         ]
       }
+      post_analytics: {
+        Row: {
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          post_id: string
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value?: number
+          post_id: string
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          post_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_analytics_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_collections: {
         Row: {
           created_at: string
@@ -340,6 +375,110 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      scheduled_posts: {
+        Row: {
+          campaign_id: string | null
+          caption: string
+          collection_id: string | null
+          created_at: string
+          goal: string | null
+          hashtags: string[] | null
+          id: string
+          image_urls: string[] | null
+          link_type: string | null
+          link_url: string | null
+          platforms: string[]
+          product_id: string | null
+          product_link_id: string | null
+          published_at: string | null
+          scheduled_for: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          caption: string
+          collection_id?: string | null
+          created_at?: string
+          goal?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_urls?: string[] | null
+          link_type?: string | null
+          link_url?: string | null
+          platforms?: string[]
+          product_id?: string | null
+          product_link_id?: string | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          caption?: string
+          collection_id?: string | null
+          created_at?: string
+          goal?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_urls?: string[] | null
+          link_type?: string | null
+          link_url?: string | null
+          platforms?: string[]
+          product_id?: string | null
+          product_link_id?: string | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_posts_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "product_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_posts_product_link_id_fkey"
+            columns: ["product_link_id"]
+            isOneToOne: false
+            referencedRelation: "product_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
