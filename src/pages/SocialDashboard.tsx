@@ -239,7 +239,7 @@ export default function SocialDashboard() {
                   <TabsTrigger value="published">
                     Published ({posts.filter((p) => p.status === "published").length})
                   </TabsTrigger>
-                </Tabs>
+                </TabsList>
 
                 <div className="space-y-4">
                   {isLoading ? (
