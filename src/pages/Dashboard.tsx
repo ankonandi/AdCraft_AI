@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye } from "lucide-react";
+import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 
 interface DashboardStats {
@@ -143,7 +143,7 @@ export default function Dashboard() {
           </div>
 
           {/* Main Actions */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card 
               className="cursor-pointer hover:shadow-soft transition-all duration-300 border-2 hover:border-primary"
               onClick={() => navigate("/generate/description")}
@@ -176,6 +176,24 @@ export default function Dashboard() {
               <CardContent>
                 <Button className="w-full" size="lg">
                   Create Campaign
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover:shadow-soft transition-all duration-300 border-2 hover:border-primary"
+              onClick={() => navigate("/social/dashboard")}
+            >
+              <CardHeader>
+                <CalendarCheck className="w-10 h-10 text-primary mb-3" />
+                <CardTitle>Social Media Hub</CardTitle>
+                <CardDescription>
+                  Schedule posts, track performance, and manage your social presence
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full" size="lg">
+                  Open Social Hub
                 </Button>
               </CardContent>
             </Card>

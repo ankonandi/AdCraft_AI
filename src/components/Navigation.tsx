@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, User } from "lucide-react";
+import { Sparkles, LogOut, User, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,7 +33,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
         </Link>
         
         {showAuth && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
@@ -42,6 +42,15 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
             >
               <User className="w-4 h-4 mr-2" />
               Dashboard
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/social/dashboard")}
+              className="hidden sm:flex"
+            >
+              <CalendarCheck className="w-4 h-4 mr-2" />
+              Social
             </Button>
             <Button
               variant="ghost"
