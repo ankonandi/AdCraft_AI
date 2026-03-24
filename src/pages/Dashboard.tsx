@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye } from "lucide-react";
+import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 
 interface DashboardStats {
