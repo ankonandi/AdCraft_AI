@@ -122,9 +122,19 @@ export function ProductCard({ product, onDelete, onEdit, onCreateLink }: Product
             <Pencil className="w-3 h-3 mr-1" />
             Edit
           </Button>
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate("/generate/campaign")}>
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Campaign
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate("/social/schedule", {
+            state: {
+              productId: product.id,
+              productTitle: product.title,
+              productDescription: product.short_description,
+              productImage: product.enhanced_image_url || product.image_url,
+              prefillCaption: `${product.title}${product.short_description ? `\n\n${product.short_description}` : ''}`,
+              prefillHashtags: product.tags?.map(t => `#${t}`).join(' ') || '',
+              linkType: 'product',
+            }
+          })}>
+            <Send className="w-3 h-3 mr-1" />
+            Create Post
           </Button>
           <Button variant="ghost" size="sm" onClick={() => onDelete(product.id)}>
             <Trash2 className="w-4 h-4 text-destructive" />
