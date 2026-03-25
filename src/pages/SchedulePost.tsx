@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,18 +45,22 @@ interface Collection {
 
 export default function SchedulePost() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { products, isLoading: isLoadingProducts, getProductImage } = useProducts();
 
-  const [caption, setCaption] = useState("");
-  const [hashtags, setHashtags] = useState("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [selectedGoal, setSelectedGoal] = useState("engagement");
+  // Pre-fill state from navigation (product card or campaign builder)
+  const prefill = (location.state as any) || {};
+
+  const [caption, setCaption] = useState(prefill.prefillCaption || "");
+  const [hashtags, setHashtags] = useState(prefill.prefillHashtags || "");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(prefill.prefillPlatforms || []);
+  const [selectedGoal, setSelectedGoal] = useState(prefill.prefillGoal || "engagement");
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
-  const [linkType, setLinkType] = useState("none");
+  const [linkType, setLinkType] = useState(prefill.linkType || "none");
   const [customUrl, setCustomUrl] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState(prefill.productId || "");
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [utmSource, setUtmSource] = useState("");
   const [utmMedium, setUtmMedium] = useState("");
@@ -64,6 +68,7 @@ export default function SchedulePost() {
   const [utmContent, setUtmContent] = useState("");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>(prefill.prefillImages || (prefill.productImage ? [prefill.productImage] : []));
 
   useEffect(() => {
     fetchCollections();
@@ -165,6 +170,7 @@ export default function SchedulePost() {
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
         utm_content: utmContent || null,
+        image_urls: imageUrls.length > 0 ? imageUrls : null,
       });
 
       if (error) throw error;
@@ -212,6 +218,41 @@ export default function SchedulePost() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Pre-filled product/image preview */}
+                {imageUrls.length > 0 && (
+                  <div>
+                    <Label className="mb-2 block">Attached Images</Label>
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                      {imageUrls.map((url, i) => (
+                        <div key={i} className="relative shrink-0">
+                          <img src={url} alt={`Attached ${i + 1}`} className="w-20 h-20 rounded-lg object-cover border" />
+                          <button
+                            type="button"
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center"
+                            onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {prefill.productTitle && (
+                  <div className="p-3 bg-secondary/50 rounded-lg border flex items-center gap-3">
+                    {prefill.productImage && (
+                      <img src={prefill.productImage} alt="" className="w-10 h-10 rounded object-cover" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">Creating post for: {prefill.productTitle}</p>
+                      {prefill.productDescription && (
+                        <p className="text-xs text-muted-foreground">{prefill.productDescription}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="caption">Caption</Label>
                   <Textarea
