@@ -170,6 +170,7 @@ export default function SchedulePost() {
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
         utm_content: utmContent || null,
+        image_urls: imageUrls.length > 0 ? imageUrls : null,
       });
 
       if (error) throw error;
