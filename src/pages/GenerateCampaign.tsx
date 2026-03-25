@@ -351,8 +351,25 @@ export default function GenerateCampaign() {
                   )}
 
                   <div className="flex gap-3 pt-4">
-                    <Button onClick={() => navigate("/dashboard")} className="flex-1" size="lg">
-                      Back to Dashboard
+                    <Button
+                      onClick={() => navigate("/social/schedule", {
+                        state: {
+                          prefillCaption: `${generatedContent.caption}${generatedContent.hashtags?.length ? '\n\n' + generatedContent.hashtags.map((t: string) => `#${t}`).join(' ') : ''}`,
+                          prefillHashtags: generatedContent.hashtags?.map((t: string) => `#${t}`).join(' ') || '',
+                          prefillPlatforms: selectedPlatforms,
+                          prefillGoal: selectedGoal,
+                          prefillImages: generatedImages,
+                          productId: selectedProductId !== "none" ? selectedProductId : undefined,
+                          productTitle: selectedProduct?.title,
+                          productImage: selectedProductImage,
+                          linkType: selectedProductId && selectedProductId !== "none" ? 'product' : 'none',
+                        }
+                      })}
+                      className="flex-1"
+                      size="lg"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Schedule This Post
                     </Button>
                     <Button
                       variant="outline"
