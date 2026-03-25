@@ -45,18 +45,22 @@ interface Collection {
 
 export default function SchedulePost() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { products, isLoading: isLoadingProducts, getProductImage } = useProducts();
 
-  const [caption, setCaption] = useState("");
-  const [hashtags, setHashtags] = useState("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [selectedGoal, setSelectedGoal] = useState("engagement");
+  // Pre-fill state from navigation (product card or campaign builder)
+  const prefill = (location.state as any) || {};
+
+  const [caption, setCaption] = useState(prefill.prefillCaption || "");
+  const [hashtags, setHashtags] = useState(prefill.prefillHashtags || "");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(prefill.prefillPlatforms || []);
+  const [selectedGoal, setSelectedGoal] = useState(prefill.prefillGoal || "engagement");
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
-  const [linkType, setLinkType] = useState("none");
+  const [linkType, setLinkType] = useState(prefill.linkType || "none");
   const [customUrl, setCustomUrl] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState(prefill.productId || "");
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [utmSource, setUtmSource] = useState("");
   const [utmMedium, setUtmMedium] = useState("");
@@ -64,6 +68,7 @@ export default function SchedulePost() {
   const [utmContent, setUtmContent] = useState("");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>(prefill.prefillImages || (prefill.productImage ? [prefill.productImage] : []));
 
   useEffect(() => {
     fetchCollections();
