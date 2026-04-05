@@ -391,6 +391,7 @@ export type Database = {
           platforms: string[]
           product_id: string | null
           product_link_id: string | null
+          publish_results: Json | null
           published_at: string | null
           scheduled_for: string | null
           status: string
@@ -415,6 +416,7 @@ export type Database = {
           platforms?: string[]
           product_id?: string | null
           product_link_id?: string | null
+          publish_results?: Json | null
           published_at?: string | null
           scheduled_for?: string | null
           status?: string
@@ -439,6 +441,7 @@ export type Database = {
           platforms?: string[]
           product_id?: string | null
           product_link_id?: string | null
+          publish_results?: Json | null
           published_at?: string | null
           scheduled_for?: string | null
           status?: string
