@@ -150,17 +150,23 @@ export default function SocialDashboard() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
+         <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">Social Media Hub</h1>
               <p className="text-muted-foreground">
                 Schedule, publish, and track your social media posts
               </p>
             </div>
-            <Button size="lg" onClick={() => navigate("/social/schedule")}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Post
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate("/social/settings")}>
+                <Filter className="w-4 h-4 mr-2" />
+                API Settings
+              </Button>
+              <Button size="lg" onClick={() => navigate("/social/schedule")}>
+                <Plus className="w-4 h-4 mr-2" />
+                New Post
+              </Button>
+            </div>
           </div>
 
           {/* Metrics Overview */}
