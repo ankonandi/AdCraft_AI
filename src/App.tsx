@@ -14,6 +14,7 @@ import ProductLink from "./pages/ProductLink";
 import CollectionLink from "./pages/CollectionLink";
 import SocialDashboard from "./pages/SocialDashboard";
 import SchedulePost from "./pages/SchedulePost";
+import PostDetail from "./pages/PostDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/history" element={<History />} />
           <Route path="/social/dashboard" element={<SocialDashboard />} />
           <Route path="/social/schedule" element={<SchedulePost />} />
+          <Route path="/social/post/:id" element={<PostDetail />} />
           <Route path="/p/:slug" element={<ProductLink />} />
           <Route path="/c/:slug" element={<CollectionLink />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
