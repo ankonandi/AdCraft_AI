@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, User, CalendarCheck } from "lucide-react";
+import { Sparkles, LogOut, User, CalendarCheck, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,6 +51,15 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
             >
               <CalendarCheck className="w-4 h-4 mr-2" />
               Social
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/social/settings")}
+              className="hidden sm:flex"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              API Keys
             </Button>
             <Button
               variant="ghost"
