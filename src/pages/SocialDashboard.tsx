@@ -285,20 +285,32 @@ function PostCard({
   onPublish: (id: string) => void;
   onCopyLink: (url: string) => void;
 }) {
+  const navigate = useNavigate();
   const statusInfo = STATUS_MAP[post.status] || STATUS_MAP.draft;
+  const publishResults = (post as any).publish_results || {};
 
   return (
-    <div className="p-4 border rounded-lg hover:shadow-card transition-all">
+    <div
+      className="p-4 border rounded-lg hover:shadow-card transition-all cursor-pointer"
+      onClick={() => navigate(`/social/post/${post.id}`)}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           {/* Platforms + Status */}
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <div className="flex gap-1">
-              {post.platforms.map((p) => (
-                <span key={p} className="text-base" title={p}>
-                  {PLATFORM_EMOJI[p] || "📱"}
-                </span>
-              ))}
+              {post.platforms.map((p) => {
+                const result = publishResults[p];
+                return (
+                  <span
+                    key={p}
+                    className={`text-base ${result?.success ? 'opacity-100' : 'opacity-50'}`}
+                    title={`${p}${result?.success ? ' ✓ Published' : result?.error ? ' ✗ Failed' : ' – Pending'}`}
+                  >
+                    {PLATFORM_EMOJI[p] || "📱"}
+                  </span>
+                );
+              })}
             </div>
             <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
             {post.goal && (
@@ -347,14 +359,14 @@ function PostCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
           {post.link_url && (
             <Button variant="ghost" size="icon" onClick={() => onCopyLink(post.link_url!)}>
               <Copy className="w-4 h-4" />
             </Button>
           )}
           {post.status === "draft" || post.status === "scheduled" ? (
-            <Button variant="ghost" size="icon" onClick={() => onPublish(post.id)} title="Mark as published">
+            <Button variant="ghost" size="icon" onClick={() => onPublish(post.id)} title="Open publish view">
               <Send className="w-4 h-4" />
             </Button>
           ) : null}
