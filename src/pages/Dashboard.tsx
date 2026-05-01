@@ -90,146 +90,117 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
-      <main className="container mx-auto px-4 pt-24 pb-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold mb-3">Welcome back! 👋</h1>
+      <main className="container mx-auto px-4 pt-24 pb-16">
+        <div className="max-w-5xl mx-auto">
+          {/* Greeting */}
+          <div className="mb-10 animate-fade-up">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
+              Namaste 🙏
+            </p>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-2 text-balance">
+              Welcome back, {user.user_metadata?.full_name?.split(" ")[0] || "Creator"}!
+            </h1>
             <p className="text-muted-foreground text-lg">
-              What would you like to create today?
+              Aaj kya banayein? Pick an action below to get started.
             </p>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <FolderOpen className="w-5 h-5 text-primary" />
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-10">
+            {[
+              { icon: FolderOpen, label: "Products", value: stats.totalProducts, tint: "bg-primary/10 text-primary" },
+              { icon: Link2, label: "Links", value: stats.totalLinks, tint: "bg-accent/10 text-accent" },
+              { icon: Eye, label: "Clicks", value: stats.totalClicks, tint: "bg-success/10 text-success" },
+            ].map(({ icon: Icon, label, value, tint }) => (
+              <Card key={label} className="rounded-2xl border border-border/70 shadow-card">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <span className={`p-2.5 rounded-xl ${tint}`}>
+                      <Icon className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <p className="font-display text-2xl sm:text-3xl font-bold leading-none">{value}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{label}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.totalProducts}</p>
-                    <p className="text-xs text-muted-foreground">Products</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Link2 className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.totalLinks}</p>
-                    <p className="text-xs text-muted-foreground">Links</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Eye className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.totalClicks}</p>
-                    <p className="text-xs text-muted-foreground">Total Clicks</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Main Actions */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card 
-              className="cursor-pointer hover:shadow-soft transition-all duration-300 border-2 hover:border-primary"
-              onClick={() => navigate("/generate/description")}
-            >
-              <CardHeader>
-                <FileText className="w-10 h-10 text-primary mb-3" />
-                <CardTitle>New Product</CardTitle>
-                <CardDescription>
-                  Upload a photo and get compelling product descriptions, titles, and tags
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full" size="lg">
-                  Create Product
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="cursor-pointer hover:shadow-soft transition-all duration-300 border-2 hover:border-primary"
-              onClick={() => navigate("/generate/campaign")}
-            >
-              <CardHeader>
-                <Megaphone className="w-10 h-10 text-primary mb-3" />
-                <CardTitle>Marketing Campaign</CardTitle>
-                <CardDescription>
-                  Create engaging captions, hashtags, and creative posts for your products
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full" size="lg">
-                  Create Campaign
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="cursor-pointer hover:shadow-soft transition-all duration-300 border-2 hover:border-primary"
-              onClick={() => navigate("/social/dashboard")}
-            >
-              <CardHeader>
-                <CalendarCheck className="w-10 h-10 text-primary mb-3" />
-                <CardTitle>Social Media Hub</CardTitle>
-                <CardDescription>
-                  Schedule posts, track performance, and manage your social presence
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full" size="lg">
-                  Open Social Hub
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {[
+              {
+                icon: FileText,
+                title: "New Product",
+                desc: "Upload a photo, get title, description & tags.",
+                cta: "Create Product",
+                onClick: () => navigate("/generate/description"),
+                gradient: "bg-gradient-marigold text-primary-foreground",
+              },
+              {
+                icon: Megaphone,
+                title: "Marketing Campaign",
+                desc: "Captions, hashtags & creative posts in seconds.",
+                cta: "Create Campaign",
+                onClick: () => navigate("/generate/campaign"),
+                gradient: "bg-gradient-indigo text-primary-foreground",
+              },
+              {
+                icon: CalendarCheck,
+                title: "Social Media Hub",
+                desc: "Schedule posts and track performance.",
+                cta: "Open Hub",
+                onClick: () => navigate("/social/dashboard"),
+                gradient: "bg-card border-2 border-border text-foreground",
+              },
+            ].map(({ icon: Icon, title, desc, cta, onClick, gradient }) => (
+              <Card
+                key={title}
+                onClick={onClick}
+                className="group cursor-pointer rounded-3xl border-2 border-border/70 shadow-card hover:shadow-soft hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+              >
+                <div className={`p-5 ${gradient}`}>
+                  <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/20 backdrop-blur">
+                    <Icon className="w-6 h-6" strokeWidth={2.2} />
+                  </span>
+                </div>
+                <CardContent className="pt-5 pb-6 px-5">
+                  <h3 className="font-display text-xl font-bold mb-1.5">{title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 text-pretty">{desc}</p>
+                  <Button className="w-full rounded-xl group-hover:shadow-soft" size="lg">
+                    {cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Quick Links */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <Card className="hover:shadow-soft transition-all cursor-pointer" onClick={() => navigate("/catalog")}>
-              <CardHeader className="pb-3">
-                <FolderOpen className="w-8 h-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Product Catalog</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">View & manage products</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-soft transition-all cursor-pointer" onClick={() => navigate("/history")}>
-              <CardHeader className="pb-3">
-                <History className="w-8 h-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Activity History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Recent generations</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-soft transition-all cursor-pointer" onClick={() => navigate("/catalog")}>
-              <CardHeader className="pb-3">
-                <BarChart3 className="w-8 h-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Link Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Track your link clicks</p>
-              </CardContent>
-            </Card>
+          <h2 className="font-display text-xl font-bold mb-3 text-foreground/80">Quick links</h2>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {[
+              { icon: FolderOpen, title: "Product Catalog", desc: "View & manage products", to: "/catalog" },
+              { icon: History, title: "Activity History", desc: "Recent generations", to: "/history" },
+              { icon: BarChart3, title: "Link Analytics", desc: "Track your link clicks", to: "/catalog" },
+            ].map(({ icon: Icon, title, desc, to }) => (
+              <Card
+                key={title}
+                onClick={() => navigate(to)}
+                className="rounded-2xl border border-border/70 cursor-pointer hover:border-primary/50 hover:shadow-card transition-all"
+              >
+                <CardContent className="p-5 flex items-start gap-3">
+                  <span className="p-2.5 rounded-xl bg-muted text-foreground/70">
+                    <Icon className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <p className="font-semibold">{title}</p>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </main>
