@@ -73,84 +73,60 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-card">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Sparkles className="w-12 h-12 text-primary" />
+    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 relative overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/25 blur-3xl animate-blob" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-tertiary/20 blur-3xl animate-blob" />
+
+      <Card className="relative w-full max-w-md rounded-3xl border-2 border-border/60 shadow-elevated bg-card/95 backdrop-blur-xl">
+        <CardHeader className="text-center pt-10">
+          <div className="flex justify-center mb-5">
+            <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-marigold shadow-soft">
+              <Sparkles className="w-8 h-8 text-primary-foreground" strokeWidth={2.2} />
+            </span>
           </div>
-          <CardTitle className="text-2xl">AdCraft AI</CardTitle>
-          <CardDescription>
-            Create stunning product descriptions and marketing campaigns
+          <CardTitle className="font-display text-3xl">Welcome to AdCraft AI</CardTitle>
+          <CardDescription className="text-base mt-1">
+            Apke products ke liye perfect content
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-7 pb-8">
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 rounded-xl h-11 p-1 bg-muted">
+              <TabsTrigger value="signin" className="rounded-lg">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-lg">Sign Up</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="mt-6">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                  />
+                  <Input id="signin-email" name="email" type="email" placeholder="you@example.com" required className="h-11 rounded-xl" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    required
-                  />
+                  <Input id="signin-password" name="password" type="password" required className="h-11 rounded-xl" />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base shadow-soft" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
 
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="mt-6">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Full Name</Label>
-                  <Input
-                    id="signup-name"
-                    name="fullName"
-                    type="text"
-                    placeholder="Your Name"
-                    required
-                  />
+                  <Input id="signup-name" name="fullName" type="text" placeholder="Your Name" required className="h-11 rounded-xl" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                  />
+                  <Input id="signup-email" name="email" type="email" placeholder="you@example.com" required className="h-11 rounded-xl" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    minLength={6}
-                    required
-                  />
+                  <Input id="signup-password" name="password" type="password" minLength={6} required className="h-11 rounded-xl" />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base shadow-soft" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>
