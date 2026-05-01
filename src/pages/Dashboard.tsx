@@ -97,13 +97,13 @@ export default function Dashboard() {
           {/* Greeting */}
           <div className="mb-10 animate-fade-up">
             <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
-              Namaste 🙏
+              {copy.greeting} 🙏
             </p>
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-2 text-balance">
               Welcome back, {user.user_metadata?.full_name?.split(" ")[0] || "Creator"}!
             </h1>
             <p className="text-muted-foreground text-lg">
-              Aaj kya banayein? Pick an action below to get started.
+              {copy.dashboardSubline}
             </p>
           </div>
 
