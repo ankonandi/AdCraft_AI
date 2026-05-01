@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
+import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 
 interface DashboardStats {
   totalProducts: number;
@@ -15,6 +16,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const copy = useRegionalCopy();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [stats, setStats] = useState<DashboardStats>({ totalProducts: 0, totalLinks: 0, totalClicks: 0 });
