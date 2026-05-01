@@ -14,9 +14,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
+import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 
 export default function Index() {
   const navigate = useNavigate();
+  const copy = useRegionalCopy();
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,13 +54,13 @@ export default function Index() {
             <div className="space-y-7 animate-fade-up">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border shadow-card text-xs font-semibold text-foreground/80">
                 <span className="inline-block w-2 h-2 rounded-full bg-success" />
-                Made in India · For local creators
+                {copy.madeFor}
               </span>
 
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-balance">
-                Apna product,
+                {copy.heroLine1}
                 <span className="block bg-gradient-warm bg-clip-text text-transparent">
-                  duniya tak pahunchao.
+                  {copy.heroLine2}
                 </span>
               </h1>
 
@@ -131,7 +133,7 @@ export default function Index() {
           <div className="text-center mb-14 max-w-2xl mx-auto">
             <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How it works</p>
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-4 text-balance">
-              Teen aasaan steps mein
+              {copy.howItWorks}
             </h2>
             <p className="text-lg text-muted-foreground">
               No tech skills needed. Just your phone, your product, and one tap.
@@ -241,7 +243,7 @@ export default function Index() {
             <div aria-hidden className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 rounded-full blur-3xl" />
             <div className="relative">
               <h2 className="font-display text-3xl md:text-5xl font-bold mb-4 text-primary-foreground text-balance">
-                Aaj se shuru karein.
+                {copy.startToday}
               </h2>
               <p className="text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
                 Thousands of creators are already growing their business with AdCraft AI.
