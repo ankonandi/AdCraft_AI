@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles } from "lucide-react";
+import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const copy = useRegionalCopy();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -86,7 +88,7 @@ export default function Auth() {
           </div>
           <CardTitle className="font-display text-3xl">Welcome to AdCraft AI</CardTitle>
           <CardDescription className="text-base mt-1">
-            Apke products ke liye perfect content
+            {copy.authTagline}
           </CardDescription>
         </CardHeader>
         <CardContent className="px-7 pb-8">

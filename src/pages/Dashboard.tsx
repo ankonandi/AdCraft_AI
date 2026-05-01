@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
+import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 
 interface DashboardStats {
   totalProducts: number;
@@ -15,6 +16,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const copy = useRegionalCopy();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [stats, setStats] = useState<DashboardStats>({ totalProducts: 0, totalLinks: 0, totalClicks: 0 });
@@ -95,13 +97,13 @@ export default function Dashboard() {
           {/* Greeting */}
           <div className="mb-10 animate-fade-up">
             <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
-              Namaste 🙏
+              {copy.greeting} 🙏
             </p>
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-2 text-balance">
               Welcome back, {user.user_metadata?.full_name?.split(" ")[0] || "Creator"}!
             </h1>
             <p className="text-muted-foreground text-lg">
-              Aaj kya banayein? Pick an action below to get started.
+              {copy.dashboardSubline}
             </p>
           </div>
 
