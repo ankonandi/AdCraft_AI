@@ -108,5 +108,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
         </div>
       )}
     </nav>
+    {showAuth && <VoiceFAB />}
+    </>
   );
 };
