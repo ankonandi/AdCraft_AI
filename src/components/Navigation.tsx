@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X } from "lucide-react";
+import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X, Mic } from "lucide-react";
+import { VoiceFAB } from "@/components/VoiceFAB";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { to: "/voice", label: "Voice", icon: Mic },
   { to: "/social/dashboard", label: "Social", icon: CalendarCheck },
   { to: "/social/settings", label: "Keys", icon: Settings },
 ];
