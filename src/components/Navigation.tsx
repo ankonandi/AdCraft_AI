@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X } from "lucide-react";
+import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X, Mic } from "lucide-react";
+import { VoiceFAB } from "@/components/VoiceFAB";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { to: "/voice", label: "Voice", icon: Mic },
   { to: "/social/dashboard", label: "Social", icon: CalendarCheck },
   { to: "/social/settings", label: "Keys", icon: Settings },
 ];
@@ -31,6 +33,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
+    <>
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/75 backdrop-blur-xl">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 font-display text-xl font-bold text-foreground group">
@@ -106,5 +109,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
         </div>
       )}
     </nav>
+    {showAuth && <VoiceFAB />}
+    </>
   );
 };
