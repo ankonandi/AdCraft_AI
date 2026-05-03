@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.publish-post]
 verify_jwt = false
+
+[functions.analytics-summary]
+verify_jwt = false

@@ -17,6 +17,8 @@ import SchedulePost from "./pages/SchedulePost";
 import PostDetail from "./pages/PostDetail";
 import SocialSettings from "./pages/SocialSettings";
 import VoiceMode from "./pages/VoiceMode";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import { RouteTracker } from "./components/RouteTracker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RouteTracker />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -40,6 +43,7 @@ const App = () => (
           <Route path="/social/post/:id" element={<PostDetail />} />
           <Route path="/social/settings" element={<SocialSettings />} />
           <Route path="/voice" element={<VoiceMode />} />
+          <Route path="/__a/:slug" element={<AnalyticsDashboard />} />
           <Route path="/p/:slug" element={<ProductLink />} />
           <Route path="/c/:slug" element={<CollectionLink />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

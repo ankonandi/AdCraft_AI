@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles } from "lucide-react";
 import { useRegionalCopy } from "@/hooks/useRegionalCopy";
+import { track } from "@/lib/analytics";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -37,12 +38,14 @@ export default function Auth() {
     setIsLoading(false);
 
     if (error) {
+      void track("auth_signup_failed", { message: error.message });
       toast({
         title: "Sign up failed",
         description: error.message,
         variant: "destructive",
       });
     } else {
+      void track("auth_signup", { email_domain: email.split("@")[1] });
       toast({
         title: "Welcome to AdCraft AI!",
         description: "Your account has been created.",
@@ -64,12 +67,14 @@ export default function Auth() {
     setIsLoading(false);
 
     if (error) {
+      void track("auth_login_failed", { message: error.message });
       toast({
         title: "Sign in failed",
         description: error.message,
         variant: "destructive",
       });
     } else {
+      void track("auth_login", { email_domain: email.split("@")[1] });
       navigate("/dashboard");
     }
   };
