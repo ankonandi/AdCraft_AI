@@ -12,6 +12,7 @@ import {
   speak, stopSpeaking, listen, isYes, isNo, isRetry, isVoiceFullySupported, type VoiceLang,
 } from "@/lib/voiceEngine";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 
 interface VoiceAssistantProps {
   open: boolean;
@@ -148,13 +149,14 @@ export function VoiceAssistant({ open, onClose }: VoiceAssistantProps) {
   // ── Flow orchestration ──────────────────────────────────────────
   const startFlow = useCallback(async () => {
     setStep("intro");
+    void track("voice_mode_started", { lang });
     await say(t.welcome);
     hear((reply) => {
       if (isYes(reply)) goAskUpload();
       else if (isNo(reply)) onClose();
       else { say(t.notUnderstood).then(() => hear(handleIntroReply)); }
     });
-  }, [t, say, hear, onClose]); // eslint-disable-line
+  }, [t, say, hear, onClose, lang]); // eslint-disable-line
 
   const handleIntroReply = (reply: string) => {
     if (isYes(reply)) goAskUpload();
@@ -198,6 +200,7 @@ export function VoiceAssistant({ open, onClose }: VoiceAssistantProps) {
       });
       if (error) throw error;
       stateRef.current.enhancedImage = data.enhancedImage;
+      void track("image_enhanced", { source: "voice" });
       tick();
       setStep("confirm-image");
       await say(t.confirmImage);
@@ -207,6 +210,7 @@ export function VoiceAssistant({ open, onClose }: VoiceAssistantProps) {
         else { say(t.notUnderstood).then(() => hear((r) => isYes(r) ? goAskDetails() : doEnhance())); }
       });
     } catch (err: any) {
+      void track("image_enhance_failed", { source: "voice", message: err.message });
       toast({ title: "Enhancement failed", description: err.message, variant: "destructive" });
       goAskDetails();
     }
@@ -274,6 +278,7 @@ export function VoiceAssistant({ open, onClose }: VoiceAssistantProps) {
       }).select().single();
       if (error) throw error;
       stateRef.current.savedProductId = data.id;
+      void track("product_created", { source: "voice", category: data.category });
       tick();
       setStep("done");
       await say(t.done);
