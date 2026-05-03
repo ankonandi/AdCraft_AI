@@ -104,7 +104,24 @@ export function stopSpeaking() {
   currentUtterance = null;
 }
 
-/** Start listening. Returns a stop function. */
+// Ensure microphone permission is granted (browsers can silently fail otherwise)
+async function ensureMicPermission(): Promise<boolean> {
+  try {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Immediately release the mic — SpeechRecognition will request its own
+      stream.getTracks().forEach((t) => t.stop());
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+/** Start listening. Returns a stop function.
+ *  Uses continuous mode + auto-restart on transient stops so users get a long
+ *  window to speak. Caller must explicitly call stop() when done. */
 export function listen(opts: ListenOptions): () => void {
   const SR = getSpeechRecognition();
   if (!SR) {
@@ -112,46 +129,97 @@ export function listen(opts: ListenOptions): () => void {
     return () => {};
   }
 
-  const recog = new SR();
-  recog.lang = opts.lang || "en-IN";
-  recog.interimResults = true;
-  recog.continuous = false;
-  recog.maxAlternatives = 1;
-
-  let finalText = "";
   let stopped = false;
+  let recog: any = null;
+  let finalText = "";
+  let lastSpeechAt = Date.now();
+  let silenceTimer: any = null;
 
-  recog.onresult = (event: any) => {
-    let interim = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const res = event.results[i];
-      if (res.isFinal) {
-        finalText += res[0].transcript;
-      } else {
-        interim += res[0].transcript;
-      }
-    }
-    if (interim) opts.onPartial?.(interim);
-  };
+  // Stop after ~2s of silence following any captured speech
+  const SILENCE_MS = 2000;
+  // Hard cap on a single listening session
+  const MAX_MS = 30000;
+  const startedAt = Date.now();
 
-  recog.onerror = (e: any) => {
-    if (!stopped) opts.onError?.(e.error || "unknown");
-  };
-
-  recog.onend = () => {
+  const finish = () => {
+    if (stopped) return;
+    stopped = true;
+    if (silenceTimer) clearTimeout(silenceTimer);
+    try { recog?.stop(); } catch { /* noop */ }
     if (finalText.trim()) opts.onResult(finalText.trim());
     opts.onEnd?.();
   };
 
-  try {
-    recog.start();
-  } catch (e: any) {
-    opts.onError?.(e.message || "start-failed");
-  }
+  const armSilenceTimer = () => {
+    if (silenceTimer) clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => {
+      if (finalText.trim()) finish();
+    }, SILENCE_MS);
+  };
+
+  const buildRecognizer = () => {
+    const r = new SR();
+    r.lang = opts.lang || "en-IN";
+    r.interimResults = true;
+    r.continuous = true;
+    r.maxAlternatives = 1;
+
+    r.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const res = event.results[i];
+        if (res.isFinal) finalText += res[0].transcript + " ";
+        else interim += res[0].transcript;
+      }
+      if (interim) {
+        opts.onPartial?.(interim);
+        lastSpeechAt = Date.now();
+      }
+      if (finalText) {
+        lastSpeechAt = Date.now();
+        armSilenceTimer();
+      }
+    };
+
+    r.onerror = (e: any) => {
+      const err = e?.error || "unknown";
+      // 'no-speech' and 'aborted' are transient — auto-restart unless user stopped
+      if (stopped) return;
+      if (err === "no-speech" || err === "aborted" || err === "audio-capture") {
+        return; // onend will fire and we restart there
+      }
+      opts.onError?.(err);
+    };
+
+    r.onend = () => {
+      if (stopped) return;
+      // Auto-restart unless we've hit max time or have a final result + silence
+      if (Date.now() - startedAt > MAX_MS) { finish(); return; }
+      if (finalText.trim() && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
+      try {
+        r.start();
+      } catch {
+        // Fresh recognizer if start() throws
+        recog = buildRecognizer();
+        try { recog.start(); } catch { finish(); }
+      }
+    };
+    return r;
+  };
+
+  // Kick off (after permission)
+  ensureMicPermission().then((ok) => {
+    if (stopped) return;
+    if (!ok) { opts.onError?.("mic-permission-denied"); opts.onEnd?.(); return; }
+    recog = buildRecognizer();
+    try { recog.start(); } catch (e: any) {
+      opts.onError?.(e?.message || "start-failed");
+      opts.onEnd?.();
+    }
+  });
 
   return () => {
-    stopped = true;
-    try { recog.stop(); } catch { /* noop */ }
+    finish();
   };
 }
 
