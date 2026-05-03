@@ -41,6 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          event_name: string
+          id: string
+          ip_hash: string | null
+          page: string | null
+          properties: Json | null
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          event_name: string
+          id?: string
+          ip_hash?: string | null
+          page?: string | null
+          properties?: Json | null
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          event_name?: string
+          id?: string
+          ip_hash?: string | null
+          page?: string | null
+          properties?: Json | null
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           campaign_name: string
