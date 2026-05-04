@@ -11,11 +11,13 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    
-    // Security check: Ensure the request path contains the secret token
-    // The token is part of the URL path: /functions/v1/analytics-summary/6951EAA2-1264-4A1A-A86D-817E462202C7
-    if (!url.pathname.includes("6951EAA2-1264-4A1A-A86D-817E462202C7")) {
-      return new Response("Unauthorized", { status: 401 });
+    const SECRET = "x9k2p7q4w8m1n6";
+    const provided = url.searchParams.get("key") || req.headers.get("x-dash-key");
+    if (provided !== SECRET) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const days = Math.min(90, Math.max(1, Number(url.searchParams.get("days") || "7")));
