@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X, Mic } from "lucide-react";
 import { VoiceFAB } from "@/components/VoiceFAB";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
