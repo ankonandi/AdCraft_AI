@@ -224,7 +224,7 @@ export default function GenerateDescription() {
                     <FileText className="w-5 h-5" />
                     Tell us about your product
                   </CardTitle>
-                  <CardDescription>Help AI generate better titles, descriptions & tags (optional)</CardDescription>
+                  <CardDescription>Help AI generate better titles, descriptions & tags <span className="text-destructive">(required)</span></CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
@@ -232,6 +232,7 @@ export default function GenerateDescription() {
                     value={productNote}
                     onChange={(e) => setProductNote(e.target.value)}
                     rows={3}
+                    required
                   />
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={() => setStep(1)} className="flex-shrink-0">
@@ -240,7 +241,7 @@ export default function GenerateDescription() {
                     </Button>
                     <Button
                       onClick={handleGenerate}
-                      disabled={!productNote.trim() && !originalImage}
+                      disabled={!productNote.trim()}
                       className="flex-1"
                       size="lg"
                     >
