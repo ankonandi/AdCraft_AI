@@ -64,6 +64,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
                 </button>
               ))}
               <div className="w-px h-6 bg-border mx-2" />
+              <LanguageToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout} className="text-foreground/70">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign out
