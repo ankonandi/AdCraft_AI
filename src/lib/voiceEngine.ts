@@ -104,28 +104,26 @@ export function stopSpeaking() {
   currentUtterance = null;
 }
 
-// Ensure microphone permission is granted (browsers can silently fail otherwise)
-async function ensureMicPermission(): Promise<boolean> {
+// Best-effort mic permission. In sandboxed iframes (e.g. Lovable preview)
+// getUserMedia may be blocked even though SpeechRecognition still works,
+// so we never block listening on this — just try and continue either way.
+async function tryWarmMic(): Promise<void> {
   try {
     if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Immediately release the mic — SpeechRecognition will request its own
       stream.getTracks().forEach((t) => t.stop());
-      return true;
     }
   } catch {
-    return false;
+    // ignore — SpeechRecognition.start() will surface real errors
   }
-  return true;
 }
 
-/** Start listening. Returns a stop function.
- *  Uses continuous mode + auto-restart on transient stops so users get a long
- *  window to speak. Caller must explicitly call stop() when done. */
+/** Start listening. Returns a stop function. */
 export function listen(opts: ListenOptions): () => void {
   const SR = getSpeechRecognition();
   if (!SR) {
     opts.onError?.("speech-recognition-unsupported");
+    opts.onEnd?.();
     return () => {};
   }
 
@@ -134,11 +132,13 @@ export function listen(opts: ListenOptions): () => void {
   let finalText = "";
   let lastSpeechAt = Date.now();
   let silenceTimer: any = null;
+  let restartCount = 0;
+  const MAX_RESTARTS = 8;
 
-  // Stop after ~2s of silence following any captured speech
-  const SILENCE_MS = 2000;
+  // Stop after ~2.5s of silence following any captured speech
+  const SILENCE_MS = 2500;
   // Hard cap on a single listening session
-  const MAX_MS = 30000;
+  const MAX_MS = 60000;
   const startedAt = Date.now();
 
   const finish = () => {
@@ -161,7 +161,8 @@ export function listen(opts: ListenOptions): () => void {
     const r = new SR();
     r.lang = opts.lang || "en-IN";
     r.interimResults = true;
-    r.continuous = true;
+    // continuous can cause issues in some browsers; default false + auto-restart
+    r.continuous = false;
     r.maxAlternatives = 1;
 
     r.onresult = (event: any) => {
@@ -183,40 +184,52 @@ export function listen(opts: ListenOptions): () => void {
 
     r.onerror = (e: any) => {
       const err = e?.error || "unknown";
-      // 'no-speech' and 'aborted' are transient — auto-restart unless user stopped
       if (stopped) return;
-      if (err === "no-speech" || err === "aborted" || err === "audio-capture") {
-        return; // onend will fire and we restart there
+      // Fatal errors — surface and stop
+      if (err === "not-allowed" || err === "service-not-allowed") {
+        opts.onError?.("mic-permission-denied");
+        finish();
+        return;
+      }
+      // Transient — let onend restart
+      if (err === "no-speech" || err === "aborted" || err === "audio-capture" || err === "network") {
+        return;
       }
       opts.onError?.(err);
     };
 
     r.onend = () => {
       if (stopped) return;
-      // Auto-restart unless we've hit max time or have a final result + silence
+      // End if we've hit hard cap
       if (Date.now() - startedAt > MAX_MS) { finish(); return; }
+      // End if we got speech and silence elapsed
       if (finalText.trim() && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
+      // Avoid infinite restart loops
+      if (restartCount++ > MAX_RESTARTS) { finish(); return; }
       try {
         r.start();
       } catch {
-        // Fresh recognizer if start() throws
-        recog = buildRecognizer();
-        try { recog.start(); } catch { finish(); }
+        try {
+          recog = buildRecognizer();
+          recog.start();
+        } catch { finish(); }
       }
     };
     return r;
   };
 
-  // Kick off (after permission)
-  ensureMicPermission().then((ok) => {
-    if (stopped) return;
-    if (!ok) { opts.onError?.("mic-permission-denied"); opts.onEnd?.(); return; }
+  // Warm mic in background but DON'T block start — some iframes block
+  // getUserMedia while still allowing SpeechRecognition
+  void tryWarmMic();
+
+  // Start immediately
+  try {
     recog = buildRecognizer();
-    try { recog.start(); } catch (e: any) {
-      opts.onError?.(e?.message || "start-failed");
-      opts.onEnd?.();
-    }
-  });
+    recog.start();
+  } catch (e: any) {
+    opts.onError?.(e?.message || "start-failed");
+    opts.onEnd?.();
+  }
 
   return () => {
     finish();
