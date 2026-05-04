@@ -208,7 +208,7 @@ export function listen(opts: ListenOptions): () => void {
       // End if we've hit hard cap
       if (Date.now() - startedAt > MAX_MS) { finish(); return; }
       // End if we got speech and silence elapsed
-      if (finalText.trim() && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
+      if ((finalText.trim() || lastInterim.trim()) && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
       // Avoid infinite restart loops
       if (restartCount++ > MAX_RESTARTS) { finish(); return; }
       try {
