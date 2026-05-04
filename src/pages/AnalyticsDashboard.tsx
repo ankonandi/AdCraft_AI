@@ -27,19 +27,25 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     if (!ok) return;
     setLoading(true);
-    supabase.functions.invoke("analytics-summary", { body: {}, method: "GET" as any })
-      .then(async () => {
-        // invoke doesn't pass query string easily; use fetch directly
-        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analytics-summary?days=${days}`;
+    setErr(null);
+    (async () => {
+      try {
+        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analytics-summary?days=${days}&key=${SECRET_SLUG}`;
         const res = await fetch(url, {
-          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string },
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string}`,
+          },
         });
         const json = await res.json();
-        if (json.error) throw new Error(json.error);
+        if (!res.ok || json.error) throw new Error(json.error || `HTTP ${res.status}`);
         setData(json);
-      })
-      .catch((e) => setErr(e.message))
-      .finally(() => setLoading(false));
+      } catch (e: any) {
+        setErr(e.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [days, ok]);
 
   if (!ok) {
