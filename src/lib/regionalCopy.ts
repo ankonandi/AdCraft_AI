@@ -282,7 +282,10 @@ export function getCopyFor(lang: LangCode): RegionalCopy {
  * Always resolves; never throws.
  */
 export async function detectLanguage(): Promise<LangCode> {
-  // Manual override (?lang=ta) wins
+  // User-set toggle wins above all
+  const userOverride = getLanguageOverride();
+  if (userOverride) return userOverride;
+  // URL override (?lang=ta) next
   try {
     const url = new URL(window.location.href);
     const override = url.searchParams.get("lang") as LangCode | null;
