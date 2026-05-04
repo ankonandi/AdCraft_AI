@@ -213,7 +213,23 @@ const BROWSER_LANG: Record<string, LangCode> = {
 };
 
 const CACHE_KEY = "adcraft.regionalCopy.v1";
+const OVERRIDE_KEY = "adcraft.regionalCopy.override";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export function setLanguageOverride(lang: LangCode | null) {
+  try {
+    if (lang) localStorage.setItem(OVERRIDE_KEY, lang);
+    else localStorage.removeItem(OVERRIDE_KEY);
+    window.dispatchEvent(new CustomEvent("adcraft:lang-changed"));
+  } catch { /* noop */ }
+}
+
+export function getLanguageOverride(): LangCode | null {
+  try {
+    const v = localStorage.getItem(OVERRIDE_KEY) as LangCode | null;
+    return v && COPY[v] ? v : null;
+  } catch { return null; }
+}
 
 function fromBrowser(): LangCode {
   if (typeof navigator === "undefined") return "hi";
