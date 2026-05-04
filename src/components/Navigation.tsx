@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, LogOut, LayoutDashboard, CalendarCheck, Settings, Menu, X, Mic } from "lucide-react";
 import { VoiceFAB } from "@/components/VoiceFAB";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -63,6 +64,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
                 </button>
               ))}
               <div className="w-px h-6 bg-border mx-2" />
+              <LanguageToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout} className="text-foreground/70">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign out
@@ -98,6 +100,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
                 {label}
               </button>
             ))}
+            <div className="px-3 py-2"><LanguageToggle className="w-full justify-center h-11" /></div>
             <button
               onClick={() => { setOpen(false); handleLogout(); }}
               className="flex items-center gap-3 px-3 h-12 rounded-xl text-base font-medium text-foreground/80 hover:bg-muted"
