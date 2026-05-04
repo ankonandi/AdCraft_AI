@@ -100,6 +100,7 @@ export const Navigation = ({ showAuth = true }: { showAuth?: boolean }) => {
                 {label}
               </button>
             ))}
+            <div className="px-3 py-2"><LanguageToggle className="w-full justify-center h-11" /></div>
             <button
               onClick={() => { setOpen(false); handleLogout(); }}
               className="flex items-center gap-3 px-3 h-12 rounded-xl text-base font-medium text-foreground/80 hover:bg-muted"
