@@ -130,13 +130,14 @@ export function listen(opts: ListenOptions): () => void {
   let stopped = false;
   let recog: any = null;
   let finalText = "";
+  let lastInterim = "";
   let lastSpeechAt = Date.now();
   let silenceTimer: any = null;
   let restartCount = 0;
   const MAX_RESTARTS = 8;
 
-  // Stop after ~2.5s of silence following any captured speech
-  const SILENCE_MS = 2500;
+  // Stop after ~1.5s of silence following any captured speech (ChatGPT-like)
+  const SILENCE_MS = 1500;
   // Hard cap on a single listening session
   const MAX_MS = 60000;
   const startedAt = Date.now();
@@ -146,14 +147,17 @@ export function listen(opts: ListenOptions): () => void {
     stopped = true;
     if (silenceTimer) clearTimeout(silenceTimer);
     try { recog?.stop(); } catch { /* noop */ }
-    if (finalText.trim()) opts.onResult(finalText.trim());
+    try { recog?.abort?.(); } catch { /* noop */ }
+    const text = (finalText.trim() || lastInterim.trim());
+    if (text) opts.onResult(text);
     opts.onEnd?.();
   };
 
   const armSilenceTimer = () => {
     if (silenceTimer) clearTimeout(silenceTimer);
     silenceTimer = setTimeout(() => {
-      if (finalText.trim()) finish();
+      // Auto-end on silence if we have any captured speech (final or interim)
+      if (finalText.trim() || lastInterim.trim()) finish();
     }, SILENCE_MS);
   };
 
@@ -161,7 +165,6 @@ export function listen(opts: ListenOptions): () => void {
     const r = new SR();
     r.lang = opts.lang || "en-IN";
     r.interimResults = true;
-    // continuous can cause issues in some browsers; default false + auto-restart
     r.continuous = false;
     r.maxAlternatives = 1;
 
@@ -173,8 +176,10 @@ export function listen(opts: ListenOptions): () => void {
         else interim += res[0].transcript;
       }
       if (interim) {
+        lastInterim = interim;
         opts.onPartial?.(interim);
         lastSpeechAt = Date.now();
+        armSilenceTimer();
       }
       if (finalText) {
         lastSpeechAt = Date.now();
@@ -203,7 +208,7 @@ export function listen(opts: ListenOptions): () => void {
       // End if we've hit hard cap
       if (Date.now() - startedAt > MAX_MS) { finish(); return; }
       // End if we got speech and silence elapsed
-      if (finalText.trim() && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
+      if ((finalText.trim() || lastInterim.trim()) && Date.now() - lastSpeechAt > SILENCE_MS) { finish(); return; }
       // Avoid infinite restart loops
       if (restartCount++ > MAX_RESTARTS) { finish(); return; }
       try {
