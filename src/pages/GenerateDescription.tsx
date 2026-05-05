@@ -192,15 +192,17 @@ export default function GenerateDescription() {
                     <ImageIcon className="w-5 h-5" />
                     Product Photo
                   </CardTitle>
-                  <CardDescription>Upload your product image — enhance it or skip to continue</CardDescription>
+                  <CardDescription>Upload one or more product images — enhance each as needed, then continue</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ImageUploader 
-                    onImageReady={handleImageReady} 
-                    onEnhancementComplete={handleEnhancementComplete}
-                  />
+                  <MultiImageUploader onChange={handleImagesChange} />
                 </CardContent>
               </Card>
+              <div className="flex justify-end">
+                <Button onClick={() => setStep(2)} disabled={images.length === 0} size="lg">
+                  Continue <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </div>
           )}
 
@@ -208,13 +210,9 @@ export default function GenerateDescription() {
           {step === 2 && !isGenerating && (
             <div className="space-y-6">
               {/* Show current image preview */}
-              {(enhancedImage || originalImage) && (
+              {primaryImage && (
                 <div className="aspect-video overflow-hidden rounded-xl bg-secondary max-h-48">
-                  <img
-                    src={enhancedImage || originalImage || ''}
-                    alt="Product"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={primaryImage} alt="Product" className="w-full h-full object-cover" />
                 </div>
               )}
 
