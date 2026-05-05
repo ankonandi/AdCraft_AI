@@ -354,8 +354,10 @@ export type Database = {
           category: string | null
           created_at: string | null
           enhanced_image_url: string | null
+          enhanced_image_urls: string[] | null
           id: string
           image_url: string | null
+          image_urls: string[] | null
           long_description: string | null
           short_description: string | null
           tags: string[] | null
@@ -367,8 +369,10 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           enhanced_image_url?: string | null
+          enhanced_image_urls?: string[] | null
           id?: string
           image_url?: string | null
+          image_urls?: string[] | null
           long_description?: string | null
           short_description?: string | null
           tags?: string[] | null
@@ -380,8 +384,10 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           enhanced_image_url?: string | null
+          enhanced_image_urls?: string[] | null
           id?: string
           image_url?: string | null
+          image_urls?: string[] | null
           long_description?: string | null
           short_description?: string | null
           tags?: string[] | null

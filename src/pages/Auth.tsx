@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles } from "lucide-react";
 import { useRegionalCopy } from "@/hooks/useRegionalCopy";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { track } from "@/lib/analytics";
 
 export default function Auth() {
@@ -83,6 +84,10 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 relative overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/25 blur-3xl animate-blob" />
       <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-tertiary/20 blur-3xl animate-blob" />
+
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageToggle />
+      </div>
 
       <Card className="relative w-full max-w-md rounded-3xl border-2 border-border/60 shadow-elevated bg-card/95 backdrop-blur-xl">
         <CardHeader className="text-center pt-10">

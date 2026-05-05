@@ -33,6 +33,8 @@ interface CatalogProduct {
   tags: string[] | null;
   image_url: string | null;
   enhanced_image_url: string | null;
+  image_urls: string[] | null;
+  enhanced_image_urls: string[] | null;
   created_at: string | null;
   product_links: ProductLink[];
 }
@@ -68,7 +70,7 @@ export default function Catalog() {
 
       const { data, error } = await supabase
         .from('products')
-        .select(`id, title, short_description, long_description, category, tags, image_url, enhanced_image_url, created_at, product_links (id, slug)`)
+        .select(`id, title, short_description, long_description, category, tags, image_url, enhanced_image_url, image_urls, enhanced_image_urls, created_at, product_links (id, slug)`)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 

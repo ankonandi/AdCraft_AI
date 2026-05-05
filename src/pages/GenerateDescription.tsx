@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Copy, Link2, ArrowRight, ArrowLeft, Check, Package, ImageIcon, FileText, Eye } from "lucide-react";
-import { ImageUploader } from "@/components/ImageUploader";
+import { MultiImageUploader } from "@/components/MultiImageUploader";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 
 const STEPS_FULL = [
@@ -33,12 +33,11 @@ export default function GenerateDescription() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [productNote, setProductNote] = useState("");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
-  const [originalImage, setOriginalImage] = useState<string | null>(null);
-  const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
+  const [images, setImages] = useState<{ original: string; enhanced: string | null }[]>([]);
+  const [primaryIndex, setPrimaryIndex] = useState(0);
   const [savedProductId, setSavedProductId] = useState<string | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [skippedEnhancement, setSkippedEnhancement] = useState(false);
 
   // Editable fields after generation
   const [editTitle, setEditTitle] = useState("");
@@ -47,20 +46,19 @@ export default function GenerateDescription() {
   const [editCategory, setEditCategory] = useState("");
   const [editTags, setEditTags] = useState("");
 
-  const handleImageReady = (original: string, enhanced: string | null) => {
-    setOriginalImage(original);
-    setEnhancedImage(enhanced);
+  const primaryImage = images[primaryIndex]
+    ? images[primaryIndex].enhanced || images[primaryIndex].original
+    : null;
+
+  const handleImagesChange = (imgs: { original: string; enhanced: string | null }[], primary: number) => {
+    setImages(imgs);
+    setPrimaryIndex(primary);
   };
 
-  const handleEnhancementComplete = (skipped: boolean) => {
-    setSkippedEnhancement(skipped);
-    setStep(2);
-  };
-
-  const activeSteps = skippedEnhancement ? STEPS_SKIP : STEPS_FULL;
+  const activeSteps = STEPS_FULL;
 
   const handleGenerate = async () => {
-    if (!productNote.trim() && !originalImage) {
+    if (!productNote.trim() && images.length === 0) {
       toast({
         title: "Add product details",
         description: "Please describe your product or upload a photo",
@@ -76,7 +74,7 @@ export default function GenerateDescription() {
         body: {
           type: 'description',
           productInfo: productNote,
-          imageData: enhancedImage || originalImage,
+          imageData: primaryImage,
         }
       });
 
@@ -119,8 +117,10 @@ export default function GenerateDescription() {
         long_description: editLongDesc.trim() || null,
         category: editCategory.trim() || null,
         tags: parsedTags.length > 0 ? parsedTags : null,
-        image_url: originalImage,
-        enhanced_image_url: enhancedImage,
+        image_url: images[primaryIndex]?.original || null,
+        enhanced_image_url: images[primaryIndex]?.enhanced || null,
+        image_urls: images.map((i) => i.original),
+        enhanced_image_urls: images.map((i) => i.enhanced || ""),
       }).select().single();
 
       if (error) throw error;
@@ -192,15 +192,17 @@ export default function GenerateDescription() {
                     <ImageIcon className="w-5 h-5" />
                     Product Photo
                   </CardTitle>
-                  <CardDescription>Upload your product image — enhance it or skip to continue</CardDescription>
+                  <CardDescription>Upload one or more product images — enhance each as needed, then continue</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ImageUploader 
-                    onImageReady={handleImageReady} 
-                    onEnhancementComplete={handleEnhancementComplete}
-                  />
+                  <MultiImageUploader onChange={handleImagesChange} />
                 </CardContent>
               </Card>
+              <div className="flex justify-end">
+                <Button onClick={() => setStep(2)} disabled={images.length === 0} size="lg">
+                  Continue <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </div>
           )}
 
@@ -208,13 +210,9 @@ export default function GenerateDescription() {
           {step === 2 && !isGenerating && (
             <div className="space-y-6">
               {/* Show current image preview */}
-              {(enhancedImage || originalImage) && (
+              {primaryImage && (
                 <div className="aspect-video overflow-hidden rounded-xl bg-secondary max-h-48">
-                  <img
-                    src={enhancedImage || originalImage || ''}
-                    alt="Product"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={primaryImage} alt="Product" className="w-full h-full object-cover" />
                 </div>
               )}
 
@@ -272,13 +270,9 @@ export default function GenerateDescription() {
           {step === 3 && generatedContent && (
             <div className="space-y-6">
               {/* Product Preview Image */}
-              {(enhancedImage || originalImage) && (
+              {primaryImage && (
                 <div className="aspect-video overflow-hidden rounded-xl bg-secondary">
-                  <img
-                    src={enhancedImage || originalImage || ''}
-                    alt="Product"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={primaryImage} alt="Product" className="w-full h-full object-cover" />
                 </div>
               )}
 
@@ -427,14 +421,13 @@ export default function GenerateDescription() {
                     setGeneratedContent(null);
                     setSavedProductId(null);
                     setProductNote("");
-                    setOriginalImage(null);
-                    setEnhancedImage(null);
+                    setImages([]);
+                    setPrimaryIndex(0);
                     setEditTitle("");
                     setEditShortDesc("");
                     setEditLongDesc("");
                     setEditCategory("");
                     setEditTags("");
-                    setSkippedEnhancement(false);
                   }}>
                     Create Another Product
                   </Button>
