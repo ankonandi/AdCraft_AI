@@ -58,7 +58,7 @@ export default function GenerateDescription() {
   const activeSteps = STEPS_FULL;
 
   const handleGenerate = async () => {
-    if (!productNote.trim() && !originalImage) {
+    if (!productNote.trim() && images.length === 0) {
       toast({
         title: "Add product details",
         description: "Please describe your product or upload a photo",
@@ -74,7 +74,7 @@ export default function GenerateDescription() {
         body: {
           type: 'description',
           productInfo: productNote,
-          imageData: enhancedImage || originalImage,
+          imageData: primaryImage,
         }
       });
 
@@ -117,8 +117,10 @@ export default function GenerateDescription() {
         long_description: editLongDesc.trim() || null,
         category: editCategory.trim() || null,
         tags: parsedTags.length > 0 ? parsedTags : null,
-        image_url: originalImage,
-        enhanced_image_url: enhancedImage,
+        image_url: images[primaryIndex]?.original || null,
+        enhanced_image_url: images[primaryIndex]?.enhanced || null,
+        image_urls: images.map((i) => i.original),
+        enhanced_image_urls: images.map((i) => i.enhanced || ""),
       }).select().single();
 
       if (error) throw error;
