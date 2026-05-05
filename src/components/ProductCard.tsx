@@ -31,8 +31,20 @@ export function ProductCard({ product, onDelete, onEdit, onCreateLink }: Product
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [imgIdx, setImgIdx] = useState(0);
 
-  const displayImage = product.enhanced_image_url || product.image_url;
+  // Build a gallery: prefer enhanced if present per index, else original
+  const originals = product.image_urls && product.image_urls.length > 0
+    ? product.image_urls
+    : product.image_url ? [product.image_url] : [];
+  const enhanced = product.enhanced_image_urls && product.enhanced_image_urls.length > 0
+    ? product.enhanced_image_urls
+    : product.enhanced_image_url ? [product.enhanced_image_url] : [];
+  const gallery = originals.map((orig, i) => enhanced[i] || orig).filter(Boolean);
+  if (gallery.length === 0 && (product.enhanced_image_url || product.image_url)) {
+    gallery.push((product.enhanced_image_url || product.image_url) as string);
+  }
+  const displayImage = gallery[imgIdx] || null;
 
   const copyProductLink = (slug: string) => {
     const link = `${window.location.origin}/p/${slug}`;
@@ -45,8 +57,25 @@ export function ProductCard({ product, onDelete, onEdit, onCreateLink }: Product
   return (
     <Card className="hover:shadow-soft transition-all overflow-hidden">
       {displayImage && (
-        <div className="aspect-video overflow-hidden bg-secondary">
+        <div className="relative aspect-video overflow-hidden bg-secondary">
           <img src={displayImage} alt={product.title} className="w-full h-full object-cover" />
+          {gallery.length > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-background/70 backdrop-blur px-2 py-1 rounded-full">
+              {gallery.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setImgIdx(i)}
+                  className={`w-2 h-2 rounded-full transition ${i === imgIdx ? "bg-primary" : "bg-foreground/30"}`}
+                  aria-label={`Image ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+          {gallery.length > 1 && (
+            <span className="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-background/80">
+              {imgIdx + 1}/{gallery.length}
+            </span>
+          )}
         </div>
       )}
 
