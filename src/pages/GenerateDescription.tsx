@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Copy, Link2, ArrowRight, ArrowLeft, Check, Package, ImageIcon, FileText, Eye } from "lucide-react";
-import { ImageUploader } from "@/components/ImageUploader";
+import { MultiImageUploader } from "@/components/MultiImageUploader";
 import { CreateProductLinkModal } from "@/components/CreateProductLinkModal";
 
 const STEPS_FULL = [
@@ -33,12 +33,11 @@ export default function GenerateDescription() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [productNote, setProductNote] = useState("");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
-  const [originalImage, setOriginalImage] = useState<string | null>(null);
-  const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
+  const [images, setImages] = useState<{ original: string; enhanced: string | null }[]>([]);
+  const [primaryIndex, setPrimaryIndex] = useState(0);
   const [savedProductId, setSavedProductId] = useState<string | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [skippedEnhancement, setSkippedEnhancement] = useState(false);
 
   // Editable fields after generation
   const [editTitle, setEditTitle] = useState("");
@@ -47,17 +46,16 @@ export default function GenerateDescription() {
   const [editCategory, setEditCategory] = useState("");
   const [editTags, setEditTags] = useState("");
 
-  const handleImageReady = (original: string, enhanced: string | null) => {
-    setOriginalImage(original);
-    setEnhancedImage(enhanced);
+  const primaryImage = images[primaryIndex]
+    ? images[primaryIndex].enhanced || images[primaryIndex].original
+    : null;
+
+  const handleImagesChange = (imgs: { original: string; enhanced: string | null }[], primary: number) => {
+    setImages(imgs);
+    setPrimaryIndex(primary);
   };
 
-  const handleEnhancementComplete = (skipped: boolean) => {
-    setSkippedEnhancement(skipped);
-    setStep(2);
-  };
-
-  const activeSteps = skippedEnhancement ? STEPS_SKIP : STEPS_FULL;
+  const activeSteps = STEPS_FULL;
 
   const handleGenerate = async () => {
     if (!productNote.trim() && !originalImage) {
