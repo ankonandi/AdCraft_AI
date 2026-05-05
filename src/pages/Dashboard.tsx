@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck } from "lucide-react";
+import { FileText, Megaphone, Sparkles, History, FolderOpen, Link2, BarChart3, Eye, CalendarCheck, ShoppingBag } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 
@@ -147,6 +147,14 @@ export default function Dashboard() {
                 desc: "Captions, hashtags & creative posts in seconds.",
                 cta: "Create Campaign",
                 onClick: () => navigate("/generate/campaign"),
+                gradient: "bg-gradient-indigo text-primary-foreground",
+              },
+              {
+                icon: ShoppingBag,
+                title: "Post to Ecommerce",
+                desc: "Generate SEO listings + CSV for Amazon, Flipkart & Meesho.",
+                cta: "Open Generator",
+                onClick: () => navigate("/ecommerce"),
                 gradient: "bg-gradient-indigo text-primary-foreground",
               },
               {
