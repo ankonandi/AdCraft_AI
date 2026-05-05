@@ -270,13 +270,9 @@ export default function GenerateDescription() {
           {step === 3 && generatedContent && (
             <div className="space-y-6">
               {/* Product Preview Image */}
-              {(enhancedImage || originalImage) && (
+              {primaryImage && (
                 <div className="aspect-video overflow-hidden rounded-xl bg-secondary">
-                  <img
-                    src={enhancedImage || originalImage || ''}
-                    alt="Product"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={primaryImage} alt="Product" className="w-full h-full object-cover" />
                 </div>
               )}
 
@@ -425,14 +421,14 @@ export default function GenerateDescription() {
                     setGeneratedContent(null);
                     setSavedProductId(null);
                     setProductNote("");
-                    setOriginalImage(null);
-                    setEnhancedImage(null);
+                    setImages([]);
+                    setPrimaryIndex(0);
                     setEditTitle("");
                     setEditShortDesc("");
                     setEditLongDesc("");
                     setEditCategory("");
                     setEditTags("");
-                    setSkippedEnhancement(false);
+                    }}>
                   }}>
                     Create Another Product
                   </Button>
