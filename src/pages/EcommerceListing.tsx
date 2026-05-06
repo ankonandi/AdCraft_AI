@@ -154,6 +154,26 @@ export default function EcommerceListing() {
             </div>
           </div>
 
+          {/* Step 0: Pick from catalog */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PackageSearch className="w-5 h-5 text-primary" /> Use a product from your catalog
+              </CardTitle>
+              <CardDescription>Optional — pre-fills photos and description from your library.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProductSelector
+                products={products}
+                isLoading={productsLoading}
+                value={selectedProductId}
+                onValueChange={handleSelectProduct}
+                placeholder="Choose a product (or upload fresh below)"
+                getProductImage={getProductImage}
+              />
+            </CardContent>
+          </Card>
+
           {/* Step 1: Images */}
           <Card>
             <CardHeader>
@@ -162,6 +182,8 @@ export default function EcommerceListing() {
             </CardHeader>
             <CardContent>
               <MultiImageUploader
+                key={imageKey}
+                initialImages={images}
                 onChange={(imgs, primary) => {
                   setImages(imgs);
                   setPrimaryIndex(primary);
