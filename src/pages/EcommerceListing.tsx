@@ -55,6 +55,7 @@ export default function EcommerceListing() {
   const [images, setImages] = useState<{ original: string; enhanced: string | null }[]>([]);
   const [imageKey, setImageKey] = useState(0);
   const [primaryIndex, setPrimaryIndex] = useState(0);
+  const [brandName, setBrandName] = useState("");
   const [productInfo, setProductInfo] = useState("");
   const [features, setFeatures] = useState("");
   const [selected, setSelected] = useState<string[]>(["amazon", "flipkart", "meesho"]);
@@ -95,6 +96,10 @@ export default function EcommerceListing() {
     : null;
 
   const handleGenerate = async () => {
+    if (!brandName.trim()) {
+      toast({ title: "Brand name required", description: "Tell us your brand name", variant: "destructive" });
+      return;
+    }
     if (!productInfo.trim() || !features.trim()) {
       toast({ title: "Missing info", description: "Add detailed description and key features", variant: "destructive" });
       return;
@@ -108,6 +113,7 @@ export default function EcommerceListing() {
       const { data, error } = await supabase.functions.invoke("generate-ecommerce-listing", {
         body: {
           platforms: selected,
+          brandName: brandName.trim(),
           productInfo,
           features,
           productImageUrl: primaryImage,
@@ -199,6 +205,16 @@ export default function EcommerceListing() {
               <CardDescription>The more detail, the better the SEO listing.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Brand name <span className="text-destructive">*</span></Label>
+                <Input
+                  id="brand"
+                  placeholder="E.g., Mitti & Co."
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value.slice(0, 80))}
+                  maxLength={80}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="info">Detailed description <span className="text-destructive">*</span></Label>
                 <Textarea
