@@ -206,6 +206,16 @@ export default function EcommerceListing() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="brand">Brand name <span className="text-destructive">*</span></Label>
+                <Input
+                  id="brand"
+                  placeholder="E.g., Mitti & Co."
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value.slice(0, 80))}
+                  maxLength={80}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="info">Detailed description <span className="text-destructive">*</span></Label>
                 <Textarea
                   id="info"
