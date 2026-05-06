@@ -59,11 +59,18 @@ serve(async (req) => {
       });
     }
 
+    // Fields that should be arrays of strings (bullets/tags). Everything else is a plain string.
+    const ARRAY_FIELDS = new Set([
+      "bullet_points", "key_features", "highlights", "tags",
+    ]);
+
     const fieldSchema: Record<string, any> = {};
     for (const p of validPlatforms) {
       const props: Record<string, any> = {};
       for (const f of PLATFORM_FIELDS[p]) {
-        props[f] = { type: ["string", "array"], items: { type: "string" } };
+        props[f] = ARRAY_FIELDS.has(f)
+          ? { type: "array", items: { type: "string" } }
+          : { type: "string" };
       }
       fieldSchema[p] = {
         type: "object",
