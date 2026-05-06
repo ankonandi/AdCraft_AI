@@ -23,6 +23,12 @@ export default function Index() {
   const navigate = useNavigate();
   const copy = useRegionalCopy();
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate("/dashboard", { replace: true });
+    });
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top nav */}
