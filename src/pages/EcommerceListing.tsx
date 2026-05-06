@@ -11,7 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MultiImageUploader } from "@/components/MultiImageUploader";
-import { Sparkles, Copy, Download, ShoppingBag, Loader2, ArrowLeft } from "lucide-react";
+import { ProductSelector } from "@/components/ProductSelector";
+import { useProducts } from "@/hooks/useProducts";
+import { Sparkles, Copy, Download, ShoppingBag, Loader2, ArrowLeft, PackageSearch } from "lucide-react";
 
 const PLATFORMS = [
   { id: "amazon", label: "Amazon India", color: "bg-orange-500/10 text-orange-700 dark:text-orange-300" },
@@ -48,7 +50,10 @@ export default function EcommerceListing() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const { products, isLoading: productsLoading, getProductImage } = useProducts();
+  const [selectedProductId, setSelectedProductId] = useState<string>("none");
   const [images, setImages] = useState<{ original: string; enhanced: string | null }[]>([]);
+  const [imageKey, setImageKey] = useState(0);
   const [primaryIndex, setPrimaryIndex] = useState(0);
   const [productInfo, setProductInfo] = useState("");
   const [features, setFeatures] = useState("");
@@ -56,6 +61,31 @@ export default function EcommerceListing() {
   const [isLoading, setIsLoading] = useState(false);
   const [listings, setListings] = useState<Listings | null>(null);
   const [fields, setFields] = useState<Record<string, string[]>>({});
+
+  const handleSelectProduct = (id: string) => {
+    setSelectedProductId(id);
+    if (id === "none") return;
+    const p = products.find((x) => x.id === id);
+    if (!p) return;
+    const originals = (p.image_urls && p.image_urls.length > 0)
+      ? p.image_urls
+      : (p.image_url ? [p.image_url] : []);
+    const enhanced = (p.enhanced_image_urls && p.enhanced_image_urls.length > 0)
+      ? p.enhanced_image_urls
+      : (p.enhanced_image_url ? [p.enhanced_image_url] : []);
+    const imgs = originals.map((o, i) => ({ original: o, enhanced: enhanced[i] || null }));
+    setImages(imgs);
+    setPrimaryIndex(0);
+    setImageKey((k) => k + 1);
+    const info = [p.title, p.long_description || p.short_description].filter(Boolean).join("\n\n");
+    if (info) setProductInfo(info);
+    const feat = [
+      p.category ? `Category: ${p.category}` : "",
+      p.tags && p.tags.length ? `Tags: ${p.tags.join(", ")}` : "",
+    ].filter(Boolean).join("\n");
+    if (feat) setFeatures(feat);
+    toast({ title: `Loaded "${p.title}" from your catalog` });
+  };
 
   const togglePlatform = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
@@ -124,6 +154,26 @@ export default function EcommerceListing() {
             </div>
           </div>
 
+          {/* Step 0: Pick from catalog */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PackageSearch className="w-5 h-5 text-primary" /> Use a product from your catalog
+              </CardTitle>
+              <CardDescription>Optional — pre-fills photos and description from your library.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProductSelector
+                products={products}
+                isLoading={productsLoading}
+                value={selectedProductId}
+                onValueChange={handleSelectProduct}
+                placeholder="Choose a product (or upload fresh below)"
+                getProductImage={getProductImage}
+              />
+            </CardContent>
+          </Card>
+
           {/* Step 1: Images */}
           <Card>
             <CardHeader>
@@ -132,6 +182,8 @@ export default function EcommerceListing() {
             </CardHeader>
             <CardContent>
               <MultiImageUploader
+                key={imageKey}
+                initialImages={images}
                 onChange={(imgs, primary) => {
                   setImages(imgs);
                   setPrimaryIndex(primary);
