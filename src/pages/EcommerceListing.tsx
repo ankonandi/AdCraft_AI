@@ -55,6 +55,7 @@ export default function EcommerceListing() {
   const [images, setImages] = useState<{ original: string; enhanced: string | null }[]>([]);
   const [imageKey, setImageKey] = useState(0);
   const [primaryIndex, setPrimaryIndex] = useState(0);
+  const [brandName, setBrandName] = useState("");
   const [productInfo, setProductInfo] = useState("");
   const [features, setFeatures] = useState("");
   const [selected, setSelected] = useState<string[]>(["amazon", "flipkart", "meesho"]);
