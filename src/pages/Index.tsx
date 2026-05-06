@@ -33,6 +33,7 @@ export default function Index() {
             AdCraft <span className="text-primary">AI</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageToggle />
             <Button variant="ghost" onClick={() => navigate("/auth")} className="hidden sm:inline-flex">
               Sign in
             </Button>
