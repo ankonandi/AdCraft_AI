@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
 import { useRegionalCopy } from "@/hooks/useRegionalCopy";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export default function Index() {
   const navigate = useNavigate();
