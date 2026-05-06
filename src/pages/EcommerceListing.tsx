@@ -11,7 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MultiImageUploader } from "@/components/MultiImageUploader";
-import { Sparkles, Copy, Download, ShoppingBag, Loader2, ArrowLeft } from "lucide-react";
+import { ProductSelector } from "@/components/ProductSelector";
+import { useProducts } from "@/hooks/useProducts";
+import { Sparkles, Copy, Download, ShoppingBag, Loader2, ArrowLeft, PackageSearch } from "lucide-react";
 
 const PLATFORMS = [
   { id: "amazon", label: "Amazon India", color: "bg-orange-500/10 text-orange-700 dark:text-orange-300" },
