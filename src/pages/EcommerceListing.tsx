@@ -96,6 +96,10 @@ export default function EcommerceListing() {
     : null;
 
   const handleGenerate = async () => {
+    if (!brandName.trim()) {
+      toast({ title: "Brand name required", description: "Tell us your brand name", variant: "destructive" });
+      return;
+    }
     if (!productInfo.trim() || !features.trim()) {
       toast({ title: "Missing info", description: "Add detailed description and key features", variant: "destructive" });
       return;
@@ -109,6 +113,7 @@ export default function EcommerceListing() {
       const { data, error } = await supabase.functions.invoke("generate-ecommerce-listing", {
         body: {
           platforms: selected,
+          brandName: brandName.trim(),
           productInfo,
           features,
           productImageUrl: primaryImage,
