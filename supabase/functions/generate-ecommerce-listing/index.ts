@@ -87,7 +87,10 @@ For each requested platform, generate ALL of its required fields. Strictly follo
 - Meesho: product_name <=60 chars (very short, keyword-first), 3-5 highlights, tags as array.
 Use the user's product details and features. Be specific, factual, never invent measurements not provided. Be SEO optimized using natural high-intent keywords.`;
 
-    const userPrompt = `Product details from creator:
+    const userPrompt = `Brand name: "${brandName || "Unbranded"}"
+Use this exact brand name in the brand/manufacturer fields and naturally in titles where appropriate.
+
+Product details from creator:
 """${productInfo || ""}"""
 
 Key features / specs from creator:
