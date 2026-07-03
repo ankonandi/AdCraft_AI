@@ -104,7 +104,7 @@ export function AuthRecoveryGuard() {
     window.addEventListener("error", handleWindowError);
 
     const timeout = window.setTimeout(() => {
-      if (hasExpiredOrNearExpiredSession() && failures.current.length > 0) {
+      if (hasExpiredOrNearExpiredSession()) {
         void recover("session-refresh-timeout");
       }
     }, 12_000);
