@@ -20,6 +20,7 @@ import VoiceMode from "./pages/VoiceMode";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import EcommerceListing from "./pages/EcommerceListing";
 import { RouteTracker } from "./components/RouteTracker";
+import { AuthRecoveryGuard } from "./components/AuthRecoveryGuard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthRecoveryGuard />
         <RouteTracker />
         <Routes>
           <Route path="/" element={<Index />} />

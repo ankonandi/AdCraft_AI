@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles } from "lucide-react";
+import { AlertCircle, Sparkles } from "lucide-react";
 import { useRegionalCopy } from "@/hooks/useRegionalCopy";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { track } from "@/lib/analytics";
+import { AUTH_RECOVERY_FLAG } from "@/components/AuthRecoveryGuard";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const copy = useRegionalCopy();
   const [isLoading, setIsLoading] = useState(false);
+  const [showSessionExpired] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return searchParams.get("session") === "expired" || Boolean(window.sessionStorage.getItem(AUTH_RECOVERY_FLAG));
+  });
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,6 +82,7 @@ export default function Auth() {
         variant: "destructive",
       });
     } else {
+      window.sessionStorage.removeItem(AUTH_RECOVERY_FLAG);
       void track("auth_login", { email_domain: email.split("@")[1] });
       navigate("/dashboard");
     }
@@ -102,6 +110,16 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-7 pb-8">
+          {showSessionExpired && (
+            <Alert className="mb-5 rounded-2xl border-primary/30 bg-primary/10 text-foreground">
+              <AlertCircle className="h-4 w-4 text-primary" />
+              <AlertTitle>Session expired</AlertTitle>
+              <AlertDescription>
+                Please sign in again to continue.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 rounded-xl h-11 p-1 bg-muted">
               <TabsTrigger value="signin" className="rounded-lg">Sign In</TabsTrigger>
